@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "511120746778",
+    "firebase_url": "https://arimuraawesomeapp-94c2c.firebaseio.com",
+    "project_id": "arimuraawesomeapp-94c2c",
+    "storage_bucket": "arimuraawesomeapp-94c2c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:511120746778:android:baef870ab35e16cfe624a3",
+        "android_client_info": {
+          "package_name": "com.arimuraawesomeapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "511120746778-khq5dvuhp913ctrc8gvb66f43th5atqd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.arimuraawesomeapp",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "511120746778-p4ieht4cnvh2aif3nndhrgkeivo2c1be.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZfpPQNw3vZNNvJt4Xaw2aWuiRqr2gecM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "511120746778-p4ieht4cnvh2aif3nndhrgkeivo2c1be.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
