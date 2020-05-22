@@ -5,9 +5,14 @@ import {
   Text,
   TextInput,
   TouchableHighlight,
+  Image,
 } from 'react-native';
 import auth from '@react-native-firebase/auth'
-// import {login} from '../components/firebase';
+// import { GoogleSignin,GoogleSigninButton } from '@react-native-community/google-signin';
+
+// GoogleSignin.configure({
+//   webClientId: '511120746778-khq5dvuhp913ctrc8gvb66f43th5atqd.apps.googleusercontent.com',
+// });
 
 function login(email, password, {navigation}) {
   auth()
@@ -27,6 +32,10 @@ function LoginScreen({navigation}) {
 
   return (
     <View style={styles.container}>
+      <Image 
+        style={styles.logo}
+        source={require('../images/Q-LINE-icon.png')}
+      />
       <Text style={styles.title}>ログイン</Text>
       <TextInput
         style={styles.input}
@@ -49,6 +58,13 @@ function LoginScreen({navigation}) {
         underlayColor="#c70f66">
         <Text style={styles.buttonTitle}>ログインする</Text>
       </TouchableHighlight>
+      {/* <GoogleSigninButton
+        style={{ width: 192, height: 48 }}
+        size={GoogleSigninButton.Size.Wide}
+        color={GoogleSigninButton.Color.Dark}
+        onPress={this._signIn}
+        disabled={this.state.isSigninInProgress} 
+      /> */}
     </View>
   );
 }
@@ -56,6 +72,11 @@ function LoginScreen({navigation}) {
 const styles = StyleSheet.create({
   container: {
     padding: 24,
+  },
+  logo:{
+    alignSelf: 'center',
+    // marginTop:10,
+    marginBottom:20,
   },
   input: {
     backgroundColor: '#eee',

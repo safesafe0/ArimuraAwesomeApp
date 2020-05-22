@@ -46,7 +46,7 @@ function TimeLineScreen (props){
         keyExtractor={(item)=>item.id}
         renderItem={({item})=><Post {...item}/>}
       />
-      <PostList postList={postList}navigation={props.navigation}/>
+      {/* <PostList postList={postList}navigation={props.navigation}/> */}
       <CircleButton onPress={() => {auth().onAuthStateChanged(function(user) {
   if (user) {
     // User is loged in.
