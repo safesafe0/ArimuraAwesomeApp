@@ -6,7 +6,7 @@ import {
   Text,
   TouchableHighlight,
 } from 'react-native';
-import storage from '@react-native-firebase/storage';
+
 function SigninScreen({navigation}) {
   return (
     <View style={styles.container}>
