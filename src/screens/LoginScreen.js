@@ -85,7 +85,7 @@ function LoginScreen({navigation}) {
         underlayColor="#c70f66">
         <Text style={styles.buttonTitle}>ログインする</Text>
       </TouchableHighlight>
-      <Text>
+      <Text style={{alignSelf:'center'}}>
         <Text style={styles.lightText}>アカウントをお持ちではありませんか？</Text>
         <Text
             style={styles.link}

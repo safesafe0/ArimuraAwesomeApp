@@ -12,8 +12,31 @@ import {
   Keyboard,
   ScrollView,
 } from 'react-native';
+import {
+  CheckBox,
+  Body,
+  Picker,
+  ListItem,
+} from 'native-base';
 import auth from '@react-native-firebase/auth';
-import {Picker} from '@react-native-community/picker';
+// import {Picker} from '@react-native-community/picker';
+
+async function register(nickname,grade,firstSchool) {
+  await firestore()
+    .collection('users')
+    .add({
+      
+      nickname: nickname,
+      grade: grade,
+      firstSchool:firstSchool,
+    })
+    .then(function (docRef) {
+      console.log(docRef.id);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}
 
 function signup(email, password, {navigation}) {
   auth()
@@ -34,6 +57,7 @@ function SignupScreen({navigation}) {
   const [password,setPassword]=useState('');
   const [nickname,setNickname]=useState('');const [grade,setGrade]=useState('');
   const [firstSchool,setFirstSchool]=useState('');
+  const [check,setCheck]=useState(false);
 
   return (
     <KeyboardAvoidingView
@@ -81,6 +105,30 @@ function SignupScreen({navigation}) {
             placeholder="志望校"
             onChangeText={setFirstSchool}
             />
+            <ListItem>
+              <CheckBox 
+              checked={check}
+              onPress={()=>setCheck(!check)}/>
+              <Body style={{marginLeft:10,
+              marginBottom:10,}}>
+                <Text>
+                  <Text 
+                    style={styles.link}
+                    onPress={()=>navigation.navigate('Home')}
+                  >利用規約</Text>
+                  <Text 
+                    style={styles.lightText}
+                  >と</Text>
+                  <Text 
+                    style={styles.link}
+                    onPress={()=>navigation.navigate('Signup')}
+                  >プライバシーポリシー</Text>
+                  <Text 
+                    style={styles.lightText}
+                  >に同意する</Text>
+                </Text>
+              </Body>
+            </ListItem>
             <TouchableHighlight
               style={styles.button}
               onPress={() => {
@@ -89,6 +137,14 @@ function SignupScreen({navigation}) {
               underlayColor="#c70f66">
               <Text style={styles.buttonTitle}>登録する</Text>
             </TouchableHighlight>
+            <Text style={{alignSelf:'center',
+             marginTop:30}}>
+              <Text style={styles.lightText}>既にアカウントをお持ちですか？</Text>
+              <Text
+                  style={styles.link}
+                  onPress={()=>navigation.navigate('Login')}
+                >Sign In</Text>
+            </Text>
           </View>
         </TouchableWithoutFeedback>
       </ScrollView>
@@ -131,6 +187,12 @@ const styles = StyleSheet.create({
   buttonTitle: {
     color: '#fff',
     fontSize: 18,
+  },
+  lightText:{
+    color:'#0008'
+  },
+  link:{
+    color:'#0066c0'
   },
 });
 
