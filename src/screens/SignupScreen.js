@@ -18,17 +18,21 @@ import {
   Picker,
   ListItem,
 } from 'native-base';
+import {GradeItem} from '../elements/PickerItem';
 import auth from '@react-native-firebase/auth';
-// import {Picker} from '@react-native-community/picker';
+import firestore from '@react-native-firebase/firestore';
 
-async function register(nickname,grade,firstSchool) {
+async function register(uid,nickname,grade,firstSchool) {
   await firestore()
+    .collection('public')
+    .doc('v1')
     .collection('users')
-    .add({
-      
+    .doc(uid)
+    .set({
       nickname: nickname,
       grade: grade,
       firstSchool:firstSchool,
+      createdAt:new Date(),
     })
     .then(function (docRef) {
       console.log(docRef.id);
@@ -56,6 +60,9 @@ function SignupScreen({navigation}) {
   const [email,setEmail]=useState('');
   const [password,setPassword]=useState('');
   const [nickname,setNickname]=useState('');const [grade,setGrade]=useState('');
+  function updateGrade(state){
+    setGrade(state);
+  }
   const [firstSchool,setFirstSchool]=useState('');
   const [check,setCheck]=useState(false);
 
@@ -88,18 +95,7 @@ function SignupScreen({navigation}) {
             onChangeText={setPassword}
             secureTextEntry
             />
-            <Picker
-              style={styles.input}
-              selectedValue={grade}
-              onValueChange={(itemValue)=>setGrade(itemValue)}>
-                <Picker.Item label='学年'value='未設定' />
-                <Picker.Item label='中学1年'value='中学1年' />
-                <Picker.Item label='中学2年'value='中学2年' />
-                <Picker.Item label='中学3年'value='中学3年' />
-                <Picker.Item label='高校1年'value='高校1年' />
-                <Picker.Item label='高校2年'value='高校2年' />
-                <Picker.Item label='高校3年'value='高校3年' />
-            </Picker>
+            <GradeItem updateGrade={updateGrade}/>
             <TextInput style={styles.input}
             value={firstSchool}
             placeholder="志望校"
@@ -133,6 +129,8 @@ function SignupScreen({navigation}) {
               style={styles.button}
               onPress={() => {
                 signup(email,password,{navigation})
+                const uid=auth().currentUser.uid;
+                register(uid,nickname,grade,firstSchool)
               }}
               underlayColor="#c70f66">
               <Text style={styles.buttonTitle}>登録する</Text>
@@ -155,11 +153,11 @@ function SignupScreen({navigation}) {
 const styles = StyleSheet.create({
   container: {
     padding: 24,
-    justifyContent:'flex-end',
+    flex:1,
+    justifyContent:'center',
   },
   logo:{
     alignSelf: 'center',
-    // marginTop:10,
     marginBottom:20,
   },
   input: {

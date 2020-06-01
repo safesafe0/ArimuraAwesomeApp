@@ -1,12 +1,12 @@
+import {List} from 'react-native-paper';
 import React from 'react';
 import{ 
 StyleSheet,
 View,
 }from 'react-native';
 import firestore from '@react-native-firebase/firestore';
-import {List} from 'react-native-paper';
 
-function Post({id,body,createdOn,complete}){
+function Post({id,body,createdAt,complete}){
   async function toggleComplete(){
     await firestore()
     .collection('posts')

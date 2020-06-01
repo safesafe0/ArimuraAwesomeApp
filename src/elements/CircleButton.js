@@ -5,7 +5,6 @@ import {
   // Text,
   TouchableHighlight,
 } from 'react-native';
-
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 function CircleButton(props) {
