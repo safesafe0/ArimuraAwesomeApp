@@ -31,14 +31,13 @@ async function post(title) {
 
 function PostScreen() {
   const [subject,setSubject] = useState('');
-  function updateSubject(state1){
-    setSubject(state1);
-  }
+  function updateSubject(state1){setSubject(state1);}
   const [field,setField] = useState('');
-  function updateField(state2){
-    setField(state2);
-  }
+  function updateField(state2){setField(state2);}
   const [title, setTitle] = useState('');
+  const [hashtag,setHashtag] = useState('');
+  const [type,setType] = useState('');
+  const [bookName,setBookName] = useState('');
 
   return (
     <KeyboardAvoidingView
@@ -52,20 +51,43 @@ function PostScreen() {
               <Text style={styles.item}>
                 科目
               </Text>
-              <View style={styles.picker}>
               <Subject 
               updateSubject={updateSubject}/>
-              </View>
             </View>
             <View style={styles.component}>
               <Text style={styles.item}>
                 分野
               </Text>
-              <View style={styles.picker}>
               <Field 
               subject={subject}
               updateField={updateField}/>
-              </View>
+            </View>
+            <View style={styles.component}>
+              <Text style={styles.item}>
+                ハッシュタグ
+              </Text>
+              <TextInput
+              style={styles.hashtag}
+              value={hashtag}
+              onChangeText={setHashtag}/>
+            </View>
+            <View style={styles.component}>
+              <Text style={styles.item}>
+                問題の種類
+              </Text>
+              <TextInput
+              style={styles.hashtag}
+              value={type}
+              onChangeText={setType}/>
+            </View>
+            <View style={styles.component}>
+              <Text style={styles.item}>
+                参考書名
+              </Text>
+              <TextInput
+              style={styles.hashtag}
+              value={bookName}
+              onChangeText={setBookName}/>
             </View>
             <TextInput
               style={styles.postInput}
@@ -88,7 +110,9 @@ function PostScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    padding:36,
+    paddingLeft:36,
+    paddingRight:36,
+    paddingTop:18,
     flex: 1,
     width: '100%',
   },
@@ -98,13 +122,26 @@ const styles = StyleSheet.create({
     marginBottom:24,
   },
   body:{
+    fontSize:15,
     fontWeight:'bold',
     alignSelf:'flex-end',
+    marginBottom:15,
   },
   item:{
+    // fontWeight:'bold',
+    fontSize:15,
     justifyContent:'center',
     alignSelf:'center',
-
+    width:'27%',
+  },
+  hashtag:{
+    backgroundColor: '#ddd',
+    height: 45,
+    width:'32%',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 8,
+    marginLeft:30,
   },
   postInput: {
     backgroundColor: '#fff',
@@ -114,11 +151,6 @@ const styles = StyleSheet.create({
     paddingRight: 16,
     paddingBottom: 16,
     fontSize: 16,
-  },
-  picker:{
-    width:'100%',
-    marginLeft:30,
-    marginRight:30,
   },
 });
 

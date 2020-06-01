@@ -1,5 +1,6 @@
 import React,{useState} from 'react';
 import {
+  View,
   StyleSheet,
 } from 'react-native'
 import {Picker} from 'native-base';
@@ -7,9 +8,8 @@ import {Picker} from 'native-base';
 function japaneseItem(props) {
   const [state,setState]=useState('');
   return(
-    <>
+    <View style={styles.picker}>
     <Picker
-    style={styles.postInput}
     selectedValue={state}
     onValueChange={(itemValue)=>{setState(itemValue),props.updateField(itemValue)}}>
     <Picker.Item label="未設定" value="未設定" />
@@ -17,16 +17,15 @@ function japaneseItem(props) {
     <Picker.Item label="古文" value="古文" />
     <Picker.Item label="漢文" value="漢文" />
     </Picker>
-  </>
+  </View>
   );
 }
 
 function mathItem(props) {
   const [state,setState]=useState('');
   return(
-    <>
+    <View style={styles.picker}>
     <Picker
-    style={styles.postInput}
     selectedValue={state}
     onValueChange={(itemValue)=>{setState(itemValue),props.updateField(itemValue)}}>
     <Picker.Item label="未設定" value="未設定" />
@@ -36,16 +35,15 @@ function mathItem(props) {
     <Picker.Item label="数Ａ" value="数Ａ" />
     <Picker.Item label="数Ｂ" value="数Ｂ" />
     </Picker>
-  </>
+  </View>
   );
 }
 
 function englishItem(props) {
   const [state,setState]=useState('');
   return(
-    <>
+    <View style={styles.picker}>
     <Picker
-    style={styles.postInput}
     selectedValue={state}
     onValueChange={(itemValue)=>{setState(itemValue),props.updateField(itemValue)}}>
     <Picker.Item label="未設定" value="未設定" />
@@ -54,16 +52,15 @@ function englishItem(props) {
     <Picker.Item label="読解" value="読解" />
     <Picker.Item label="英作文" value="英作文" />
     </Picker>
-  </>
+  </View>
   );
 }
 
 function scienceItem(props) {
   const [state,setState]=useState('');
   return(
-    <>
+    <View style={styles.picker}>
     <Picker
-    style={styles.postInput}
     selectedValue={state}
     onValueChange={(itemValue)=>{setState(itemValue),props.updateField(itemValue)}}>
     <Picker.Item label="未設定" value="未設定" />
@@ -72,16 +69,15 @@ function scienceItem(props) {
     <Picker.Item label="生物" value="生物" />
     <Picker.Item label="地学" value="地学" />
     </Picker>
-  </>
+  </View>
   );
 }
 
 function socialItem(props) {
   const [state,setState]=useState('');
   return(
-    <>
+    <View style={styles.picker}>
     <Picker
-    style={styles.postInput}
     selectedValue={state}
     onValueChange={(itemValue)=>{setState(itemValue),props.updateField(itemValue)}}>
     <Picker.Item label="未設定" value="未設定" />
@@ -91,7 +87,7 @@ function socialItem(props) {
     <Picker.Item label="地理" value="地理" />
     <Picker.Item label="現代社会" value="現代社会" />
     </Picker>
-  </>
+  </View>
   );
 }
 
@@ -120,7 +116,7 @@ export function GradeItem(props) {
 export function Subject(props) {
   const [state,setState]=useState('');
   return(
-    <>
+    <View style={styles.picker}>
       <Picker
       style={styles.postInput}
       selectedValue={state}
@@ -132,7 +128,7 @@ export function Subject(props) {
         <Picker.Item label="理科" value="理科" />
         <Picker.Item label="社会" value="社会" />
       </Picker>
-    </>
+    </View>
     );
 }
 
@@ -151,13 +147,13 @@ export function Field(props) {
       return socialItem(props);
     default:
       return (
-        <>
+        <View style={styles.picker}>
         <Picker
-        enabled={false}
-        style={styles.postInput}>
+        style={styles.postInput}
+        enabled={false}>
           <Picker.Item label="未設定" value="未設定" />
         </Picker>
-        </>
+        </View>
       );
   }
 }
@@ -170,8 +166,12 @@ const styles=StyleSheet.create({
     padding: 8,
   },
   postInput:{
+  },
+  picker:{
     backgroundColor: '#ddd',
-    height:42,
-    width:'30%',
+    height:45,
+    alignSelf:'center',
+    width:'32%',
+    marginLeft:30,
   },
 })
