@@ -17,13 +17,69 @@ import ImagePicker from 'react-native-image-picker';
 import CircleButton from '../elements/CircleButton';
 import {Subject,Field} from '../elements/PickerItem';
 import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
+import storage from '@react-native-firebase/storage';
+
+async function uploadImage1(props){
+  const metadata = {
+    contentType:'image/jpeg',
+  };
+  const imgURI = props.image1;
+  const imgName = props.image1Name;
+  const response = await fetch(imgURI);
+  const blob = await response.blob();
+  const reference =storage().ref('images').child(`${imgName}`);
+
+  await reference.put(blob,metadata).catch(()=>{
+    alert('画像の保存に失敗しました');
+  });
+
+  await reference
+  .getDownloadURL()
+  .then(url => setImage1(url))
+  .catch(()=>{
+    alert('失敗しました');
+  });
+}
+
+async function uploadImage2(props){
+  const metadata = {
+    contentType:'image/jpeg',
+  };
+  const imgURI = props.image2;
+  const imgName = props.image2Name;
+  const response = await fetch(imgURI);
+  const blob = await response.blob();
+  const reference =storage().ref('images').child(`${imgName}`);
+
+  await reference.put(blob,metadata).catch(()=>{
+    alert('画像の保存に失敗しました');
+  })
+
+  await reference
+  .getDownloadURL()
+  .then(url => setImage2(url))
+  .catch(()=>{
+    alert('失敗しました');
+  });
+}
 
 async function post(props) {
   await firestore()
     .collection('posts')
-    .add({
-      body: title,
-      createdAt: '2020-05-13',
+    .doc('v1')
+    .collection('users')
+    .doc(props.uid)
+    .set({
+      body: props.title,
+      subject:props.subject,
+      field:props.field,
+      hashtag:props.hashtag,
+      type:props.type,
+      bookName:props.bookName,
+      image1:props.image1,
+      image2:props.image2,
+      createdAt: new Date(),
     })
     .then(function (docRef) {
       console.log(docRef.id);
@@ -42,6 +98,8 @@ function PostScreen() {
   const [bookName,setBookName] = useState('');
   const [image1,setImage1]=useState('');
   const [image2,setImage2]=useState('');
+  const [image1Name,setImage1Name]=useState('');
+  const [image2Name,setImage2Name]=useState('');
 
   function updateSubject(state1){setSubject(state1);}
   function updateField(state2){setField(state2);}
@@ -63,6 +121,7 @@ function PostScreen() {
       } else {
         console.log(response.uri)
         setImage1(response.uri);
+        setImage1Name(response.fileName);
       }
     });
   }
@@ -84,6 +143,7 @@ function PostScreen() {
       } else {
         console.log(response.uri)
         setImage2(response.uri);
+        setImage2Name(response.fileName);
       }
     });
   }
@@ -146,15 +206,18 @@ function PostScreen() {
             onPress={showPicker1}
             underlayColor='transparent'
             >
-              <View style={styles.wrapper}>
+              {image1 ? (
+                <Image 
+                style={styles.image}
+                source={{uri:image1}}/>
+              ):(
+                <View style={styles.wrapper}>
                 <MaterialCommunityIcons 
                 style={styles.icon}
                 name='image-filter'/>
               </View>
+              )}
             </TouchableHighlight>
-            <Image 
-            style={styles.image}
-            source={{uri:image1}}/>
             <Text style={styles.body}>
               わからない部分の解答画像(答えがある場合)
             </Text>
@@ -163,15 +226,18 @@ function PostScreen() {
             onPress={showPicker2}
             underlayColor='transparent'
             >
-              <View style={styles.wrapper}>
+              {image2 ? (
+                <Image 
+                style={styles.image}
+                source={{uri:image2}}/>
+              ):(
+                <View style={styles.wrapper}>
                 <MaterialCommunityIcons 
                 style={styles.icon}
                 name='image-filter'/>
               </View>
+              )} 
             </TouchableHighlight>
-            <Image 
-            style={styles.image}
-            source={{uri:image2}}/>
             <Text style={styles.body}>
               どこがわからないのか
             </Text>
@@ -183,7 +249,11 @@ function PostScreen() {
             />
             <CircleButton
               onPress={() => {
-                post(subject,field,title,hashtag,type,bookName,image1,image2);
+                uploadImage1(image1,image1Name)
+                uploadImage2(image2,image2Name)
+                const uid=auth().currentUser.uid;
+                post(uid,subject,field,title,hashtag,type,bookName,image1,image2);
+
               }}>
               send
             </CircleButton>
