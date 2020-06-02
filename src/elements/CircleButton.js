@@ -2,7 +2,6 @@ import React from 'react';
 import {
   StyleSheet, 
   View, 
-  // Text,
   TouchableHighlight,
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -18,7 +17,6 @@ function CircleButton(props) {
         <MaterialCommunityIcons 
         style={styles.icon}
         name={props.children}/>
-        {/* <Text style={styles.circleButtonTitle}>{props.children}</Text> */}
       </View>
     </TouchableHighlight>
   );
@@ -47,11 +45,6 @@ const styles = StyleSheet.create({
     // androidの場合
     elevation:5,
   },
-  // circleButtonTitle:{
-  //   fontSize: 38,
-  //   lineHeight: 46,
-  //   color: '#fff',
-  // },
   icon:{
     fontSize:25,
     color:'#fff',
