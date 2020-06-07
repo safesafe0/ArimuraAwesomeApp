@@ -71,7 +71,7 @@ async function post(props) {
     .collection('users')
     .doc(props.uid)
     .set({
-      body: props.title,
+      body:props.title,
       subject:props.subject,
       field:props.field,
       hashtag:props.hashtag,
@@ -89,7 +89,7 @@ async function post(props) {
     });
 }
 
-function PostScreen() {
+function PostScreen({navigation}) {
   const [subject,setSubject] = useState('');
   const [field,setField] = useState('');
   const [title, setTitle] = useState('');
@@ -164,43 +164,33 @@ function PostScreen() {
               updateSubject={updateSubject}/>
             </View>
             <View style={styles.component}>
-              <Text style={styles.item}>
-                分野
-              </Text>
+              <Text style={styles.item}>分野</Text>
               <Field 
               subject={subject}
               updateField={updateField}/>
             </View>
             <View style={styles.component}>
-              <Text style={styles.item}>
-                ハッシュタグ
-              </Text>
+              <Text style={styles.item}>ハッシュタグ</Text>
               <TextInput
               style={styles.hashtag}
               value={hashtag}
               onChangeText={setHashtag}/>
             </View>
             <View style={styles.component}>
-              <Text style={styles.item}>
-                問題の種類
-              </Text>
+              <Text style={styles.item}>問題の種類</Text>
               <TextInput
               style={styles.hashtag}
               value={type}
               onChangeText={setType}/>
             </View>
             <View style={styles.component}>
-              <Text style={styles.item}>
-                参考書名
-              </Text>
+              <Text style={styles.item}>参考書名</Text>
               <TextInput
               style={styles.hashtag}
               value={bookName}
               onChangeText={setBookName}/>
             </View>
-            <Text style={styles.body}>
-              わからない問題の画像
-            </Text>
+            <Text style={styles.body}>わからない問題の画像</Text>
             <TouchableHighlight 
             style={styles.button}
             onPress={showPicker1}
@@ -215,7 +205,7 @@ function PostScreen() {
                 <MaterialCommunityIcons 
                 style={styles.icon}
                 name='image-filter'/>
-              </View>
+                </View>
               )}
             </TouchableHighlight>
             <Text style={styles.body}>
@@ -242,10 +232,10 @@ function PostScreen() {
               どこがわからないのか
             </Text>
             <TextInput
-              style={styles.postInput}
-              multiline
-              value={title}
-              onChangeText={setTitle}
+            style={styles.postInput}
+            multiline
+            value={title}
+            onChangeText={setTitle}
             />
             <CircleButton
               onPress={() => {
@@ -253,7 +243,6 @@ function PostScreen() {
                 uploadImage2(image2,image2Name)
                 const uid=auth().currentUser.uid;
                 post(uid,subject,field,title,hashtag,type,bookName,image1,image2);
-
               }}>
               send
             </CircleButton>
@@ -305,14 +294,14 @@ const styles = StyleSheet.create({
     marginLeft:30,
   },
   button:{
-    width: 48,
-    height: 48,
+    width: 85,
+    height: 85,
     marginBottom:20,
     alignSelf: 'center',
   },
   wrapper:{
-    width: 48,
-    height: 48,
+    width: 85,
+    height: 85,
     backgroundColor: '#ccc',
     borderRadius: 5,
     justifyContent: 'center',
@@ -326,7 +315,7 @@ const styles = StyleSheet.create({
     elevation:5,
   },
   icon:{
-    fontSize:25,
+    fontSize:45,
     color:'#fff',
     alignSelf:'center',
   },

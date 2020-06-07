@@ -18,6 +18,7 @@ const Tab = createMaterialBottomTabNavigator();
 const HomeStack = createStackNavigator();
 const TimeLineStack = createStackNavigator();
 const SigninStack = createStackNavigator();
+const RootStack = createStackNavigator();
 
 function HomeStackScreen(){
   return(
@@ -29,7 +30,6 @@ function HomeStackScreen(){
     </HomeStack.Navigator>
   )
 }
-
 function TimeLineStackScreen(){
   return(
     <TimeLineStack.Navigator>
@@ -38,17 +38,12 @@ function TimeLineStackScreen(){
         component={TimeLineScreen} 
       />
       <TimeLineStack.Screen 
-        name="Post" 
-        component={PostScreen} 
-      />
-      <TimeLineStack.Screen 
         name="Detail" 
         component={PostDetailScreen} 
       />
     </TimeLineStack.Navigator>
   )
 }
-
 function SigninStackScreen(){
   return(
     <SigninStack.Navigator>
@@ -67,43 +62,58 @@ function SigninStackScreen(){
     </SigninStack.Navigator>
   )
 }
-
+function MainTabs(){
+  return (
+    <Tab.Navigator
+      screenOptions={({route})=>({
+        tabBarIcon:({color,size})=>{
+          const icons={
+          Home:'home',
+          TimeLine:'twitter',
+          Signin:'account',
+          };
+          return (
+            <MaterialCommunityIcons
+            name={icons[route.name]}
+            color={color}
+            size={26}
+            />
+            );
+          },
+        })
+      }
+      shifting={true}
+    >
+      <Tab.Screen 
+        name="Home" 
+        component={HomeStackScreen}
+      />
+      <Tab.Screen
+        name="TimeLine" 
+        component={TimeLineStackScreen}
+      />
+      <Tab.Screen 
+        name="Signin"
+        component={SigninStackScreen} 
+      />
+    </Tab.Navigator>
+  )
+}
 
 const App: () => React$Node = () => {
   return (
     <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={({route})=>({
-          tabBarIcon:({color,size})=>{
-            const icons={
-            Home:'home',
-            TimeLine:'twitter',
-            Signin:'account',
-            };
-            return (
-              <MaterialCommunityIcons
-              name={icons[route.name]}
-              color={color}
-              size={26}
-              />
-            );
-          },
-        })}
-        shifting={true}
-      >
-        <Tab.Screen 
-          name="Home" 
-          component={HomeStackScreen}
+      <RootStack.Navigator mode="modal">
+        <RootStack.Screen
+          name="Main"
+          component={MainTabs}
+          options={{headerShown:false}}
         />
-        <Tab.Screen
-          name="TimeLine" 
-          component={TimeLineStackScreen}
+        <RootStack.Screen
+          name="Post"
+          component={PostScreen}
         />
-        <Tab.Screen 
-          name="Signin"
-          component={SigninStackScreen} 
-        />
-      </Tab.Navigator>
+      </RootStack.Navigator>
     </NavigationContainer>
   );
 };
