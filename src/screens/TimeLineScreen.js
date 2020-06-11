@@ -1,69 +1,89 @@
-import React,{useState,useEffect} from 'react';
-import { 
-  FlatList,
-  StyleSheet,
-  View, 
-} from 'react-native';
-import auth from '@react-native-firebase/auth'
+import React, {useState, useCallback} from 'react';
+import {FlatList, StyleSheet, View, ActivityIndicator} from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
+import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
-import Post from '../components/Post'
-import PostList from '../components/PostList';
+import {UidContext} from '../components/Context';
+import Post from '../components/Post';
 import CircleButton from '../elements/CircleButton';
 
-function TimeLineScreen (props){
-  const ref=firestore().collection('posts');
-  const[postList,setpostList]=useState([]);
-  const[loading,setLoading]=useState(true);
+function TimeLineScreen(props) {
+  const [postList, setPostList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  // const [uid, setUid] = useState('');
 
-  useEffect(()=>{
-    return ref.onSnapshot(querySnapshot=>{
-      const list=[];
-      querySnapshot.forEach(doc=>{
-        const {body, complete}=doc.data();
-        list.push({
-          id:doc.id,
-          body,
-          complete,
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     const auther = auth().onAuthStateChanged(function (user) {
+  //       if (user) {
+  //         const uid = user.uid;
+  //         setUid(uid);
+  //         console.log(uid);
+  //       } else {
+  //         setUid('');
+  //         console.log(uid);
+  //       }
+  //     });
+  //     return auther;
+  //   }, []),
+  // );
+
+  function toggleButton(uid) {
+    {
+      uid === ''
+        ? (props.navigation.navigate('Signin'), alert('Please Login!'))
+        : props.navigation.navigate('Post', uid);
+    }
+  }
+  useFocusEffect(
+    useCallback(() => {
+      const subscriber = firestore()
+        .collectionGroup('posts')
+        .onSnapshot((querySnapshot) => {
+          const postList = [];
+          querySnapshot.forEach((documentSnapshot) => {
+            postList.push({
+              ...documentSnapshot.data(),
+              id: documentSnapshot.id,
+            });
+          });
+          setPostList(postList);
+          setLoading(false);
         });
-      });
-      
-      setpostList(list);
+      return () => subscriber();
+    }, []),
+  );
 
-      if(loading){
-        setLoading(false);
-      }
-    });
-  },[]);
-
-  if(loading){
-    return null;
+  if (loading) {
+    return <ActivityIndicator />;
   }
+
   return (
-    <View style={styles.container}>
-      <FlatList
-        style={{flex:1}}
-        data={postList}
-        keyExtractor={(item)=>item.id}
-        renderItem={({item})=><Post {...item}/>}
-      />
-      {/* <PostList postList={postList}navigation={props.navigation}/> */}
-      <CircleButton onPress={() => {auth().onAuthStateChanged(function(user) {
-  if (user) {
-    // User is loged in.
-    props.navigation.navigate('Post')
-  } else {
-    // No user is loged in.
-    props.navigation.navigate('Signin')
-  }
-});}}>plus</CircleButton>
-    </View>
+    <UidContext.Consumer>
+      {state =>(
+        <View style={styles.container}>
+        <FlatList
+          style={{flex: 1}}
+          data={postList}
+          keyExtractor={(item) => item.id}
+          renderItem={({item}) => <Post {...item} />}
+        />
+        <CircleButton
+          onPress={() => {
+            toggleButton(state.uid);
+          }}>
+          plus
+        </CircleButton>
+      </View>
+      )}
+    </UidContext.Consumer>
   );
 }
 
 const styles = StyleSheet.create({
-  container:{
-    flex:1,
-    width:'100%',
+  container: {
+    flex: 1,
+    width: '100%',
   },
 });
 export default TimeLineScreen;

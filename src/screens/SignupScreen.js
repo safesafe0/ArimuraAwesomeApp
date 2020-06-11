@@ -15,11 +15,11 @@ import {
 import {
   CheckBox,
   Body,
-  Picker,
   ListItem,
 } from 'native-base';
 import {GradeItem} from '../elements/PickerItem';
 import auth from '@react-native-firebase/auth';
+import {AuthContext} from '../components/Context';
 import firestore from '@react-native-firebase/firestore';
 
 async function register(uid,nickname,grade,firstSchool) {
@@ -47,6 +47,7 @@ function signup(email, password, {navigation}) {
   .createUserWithEmailAndPassword(email, password)
   .then(function (user) {
     console.log('Success to Signup');
+    setUid(user.uid);
     navigation.navigate('Signin');
     alert('ユーザー登録が完了しました!');
   })
@@ -57,9 +58,12 @@ function signup(email, password, {navigation}) {
 }
 
 function SignupScreen({navigation}) {
+  const [uid,setUid]=useState('');
   const [email,setEmail]=useState('');
   const [password,setPassword]=useState('');
-  const [nickname,setNickname]=useState('');const [grade,setGrade]=useState('');
+  const [nickname,setNickname]=useState('');
+  const [grade,setGrade]=useState('');
+  const {signedIn} = useContext(AuthContext);
   function updateGrade(state){
     setGrade(state);
   }
@@ -129,7 +133,7 @@ function SignupScreen({navigation}) {
               style={styles.button}
               onPress={() => {
                 signup(email,password,{navigation})
-                const uid=auth().currentUser.uid;
+                signedIn(uid)
                 register(uid,nickname,grade,firstSchool)
               }}
               underlayColor="#c70f66">
