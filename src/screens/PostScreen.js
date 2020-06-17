@@ -16,32 +16,27 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import ImagePicker from 'react-native-image-picker';
 import CircleButton from '../elements/CircleButton';
 import {Subject, Field} from '../elements/PickerItem';
+import {UidContext} from '../components/Context';
 import firestore from '@react-native-firebase/firestore';
-import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
 
 function PostScreen({navigation}) {
   const [subject, setSubject] = useState('');
   const [field, setField] = useState('');
-  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
   const [hashtag, setHashtag] = useState('');
   const [type, setType] = useState('');
   const [bookName, setBookName] = useState('');
   const [image1, setImage1] = useState('');
+  const [source1, setSource1] = useState('');
   const [image2, setImage2] = useState('');
-  const [image1URL, setImage1URL] = useState('');
-  const [image2URL, setImage2URL] = useState('');
-  const [image1Type, setImage1Type] = useState('');
-  const [image2Type, setImage2Type] = useState('');
-  const [image1Name, setImage1Name] = useState('');
-  const [image2Name, setImage2Name] = useState('');
-  const [addedPost, setAddedPost] = useState([]);
+  const [source2, setSource2] = useState('');
 
-  function updateSubject(state1) {
-    setSubject(state1);
+  function updateSubject(state) {
+    setSubject(state);
   }
-  function updateField(state2) {
-    setField(state2);
+  function updateField(state) {
+    setField(state);
   }
   function showPicker1() {
     let options = {
@@ -51,19 +46,15 @@ function PostScreen({navigation}) {
         path: 'images',
       },
     };
-
     ImagePicker.showImagePicker(options, (response) => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
       } else if (response.error) {
         console.log('ImagePicker Error: ', response.error);
       } else {
-        console.log(response.uri);
         console.log(response.path);
-        setImage1(response.uri);
-        setImage1URL(response.path);
-        setImage1Type(response.type);
-        setImage1Name(response.fileName);
+        setImage1(response.path);
+        setSource1(response.uri)
       }
     });
   }
@@ -75,63 +66,131 @@ function PostScreen({navigation}) {
         path: 'images',
       },
     };
-
     ImagePicker.showImagePicker(options, (response) => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
       } else if (response.error) {
         console.log('ImagePicker Error: ', response.error);
       } else {
-        console.log(response.uri);
         console.log(response.path);
-        setImage2(response.uri);
-        setImage2URL(response.path);
-        setImage2Type(response.type);
-        setImage2Name(response.fileName);
+        setImage2(response.path);
+        setSource2(response.uri);
       }
     });
   }
-  async function uploadImage1(image1URL,image1Type,image1Name) {
-    const metadata = {
-      contentType: `image/${image1Type}`,
-    };
-    const reference = storage().ref('images').child(`${image1Name}`);
-    await reference.putFile(image1URL, metadata).catch(() => {
-      alert('画像の保存に失敗しました');
-    });
-    await reference
-      .getDownloadURL()
-      .then((url) => setImage1(url))
-      .catch(() => {
-        alert('失敗しました');
+  // function uploadImage(imageURL, imageType, imageName) {
+  //   if (image){
+  //     const id=Math.random()*100000000000000000;
+  //     const iid=Math.random()*100000000000000000;
+  //     const uuid=''+id+''+iid;
+  //     const fileName=uuid+'.'+imageType;
+  //     console.log(fileName);
+  //     storage()
+  //     .ref('post')
+  //     .child('img')
+  //     .child(fileName)
+  //     .putFile(image)
+  //     .on(
+  //       storage.TaskEvent.STATE_CHANGED,
+  //       snapshot=>{
+  //       }
+  //     )
+  //   }
+  //   const metadata = {
+  //     contentType: `${imageType}`,
+  //   };
+  //   const reference = storage().ref('images').child(`${imageName}`);
+  //   await reference.putFile(imageURL, metadata).catch(() => {
+  //     alert('画像の保存に失敗しました');
+  //   });
+  //   await reference
+  //     .getDownloadURL()
+  //     .then((url) => setImage1URL(url))
+  //     .catch(() => {
+  //       alert('失敗しました');
+  //     });
+  // }
+
+  // async function uploadImage2(image2URL, image2Type, image2Name) {
+  //   const metadata = {
+  //     contentType: `image/${image2Type}`,
+  //   };
+  //   const reference = storage().ref('images').child(`${image2Name}`);
+  //   await reference.putFile(image2URL, metadata).catch(() => {
+  //     alert('画像の保存に失敗しました');
+  //   });
+  //   await reference
+  //     .getDownloadURL()
+  //     .then((url) => setImage2URL(url))
+  //     .catch(() => {
+  //       alert('失敗しました');
+  //     });
+  // }
+  async function uploadImage1(image,uid,{navigation}) {
+    if(image){
+      const id=Math.random()*100000000000000000;
+      const iid=Math.random()*100000000000000000;
+      const uuid=''+id+''+iid;
+      const fileName=uuid+'.'+image.split('.').pop();
+      console.log(fileName);
+      await storage()
+      .ref('post')
+      .child('img')
+      .child(fileName)
+      .putFile(image)
+      .catch(()=>{
+        alert('画像の保存に失敗しました');
+      })
+      .then(async()=>{
+        await storage()
+        .ref('post')
+        .child('img')
+        .child(fileName)
+        .getDownloadURL()
+        .catch(()=>{
+          alert('画像のURLの取得に失敗しました');
+        })
+        .then((downloadURL)=>{
+          uploadImage2(image2,downloadURL,uid,{navigation});
+        });
       });
+    } else {
+      uploadImage2(image2,downloadURL='',uid,{navigation});
+    }
   }
-  async function uploadImage2(image2URL,image2Type,image2Name) {
-    const metadata = {
-      contentType: `image/${image2Type}`,
-    };
-    const reference = storage().ref('images').child(`${image2Name}`);
-    await reference.putFile(image2URL, 'base64url', metadata).catch(() => {
-      alert('画像の保存に失敗しました');
-    });
-    await reference
-      .getDownloadURL()
-      .then((url) => setImage2(url))
-      .catch(() => {
-        alert('失敗しました');
+  async function uploadImage2(image,image1URL,uid,{navigation}) {
+    if(image){
+      const id=Math.random()*100000000000000000;
+      const iid=Math.random()*100000000000000000;
+      const uuid=''+id+''+iid;
+      const fileName=uuid+'.'+image.split('.').pop();
+      console.log(fileName);
+      await storage()
+      .ref('post')
+      .child('img')
+      .child(fileName)
+      .putFile(image)
+      .catch(()=>{
+        alert('画像の保存に失敗しました');
+      })
+      .then(async()=>{
+        await storage()
+        .ref('post')
+        .child('img')
+        .child(fileName)
+        .getDownloadURL()
+        .catch(()=>{
+          alert('画像のURLの取得に失敗しました');
+        })
+        .then((downloadURL)=>{
+          uploadPost(image1URL,downloadURL,uid,{navigation});
+        });
       });
+    } else {
+      uploadPost(image1URL,downloadURL='',uid,{navigation});
+    }
   }
-  async function uploadPost({
-    uid,
-    body,
-    subject,
-    field,
-    hashtag,
-    type,
-    bookName,
-    image1,
-    image2,
-  }) {
+  async function uploadPost(image1,image2,uid,{navigation}) {
     await firestore()
       .collection('public')
       .doc('v1')
@@ -139,170 +198,119 @@ function PostScreen({navigation}) {
       .doc(uid)
       .collection('posts')
       .add({
-        uid,
-        body,
-        subject,
-        field,
-        hashtag,
-        type,
-        bookName,
-        image1,
-        image2,
+        uid:uid,
+        body:body,
+        subject:subject,
+        field:field,
+        hashtag:hashtag,
+        type:type,
+        bookName:bookName,
+        image1:image1,
+        image2:image2,
         createdAt: new Date(),
       })
       .then(function (docRef) {
         console.log(docRef.id);
         console.log('書き込みができました');
+        navigation.navigate('TimeLine');
       })
       .catch(function (error) {
         console.log(error);
       });
   }
-  async function post(
-    subject,
-    field,
-    title,
-    hashtag,
-    type,
-    bookName,
-    image1URL,
-    image2URL,
-    {navigation}) {
-    const uid = auth().currentUser.uid;
-    const body = await title;
-    const Subject = await subject;
-    const Field = await field;
-    const Hashtag = await hashtag;
-    const Type = await type;
-    const BookName = await bookName;
-    const image1 = await image1URL;
-    const image2 = await image2URL;
-    await uploadPost(
-      uid,
-      body,
-      Subject,
-      Field,
-      Hashtag,
-      Type,
-      BookName,
-      image1,
-      image2,
-    );
-    setAddedPost([
-      {body, subject, field, hashtag, type, bookName, image1, image2},
-    ]);
-    navigation.navigate('TimeLine');
-  }
-
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : null}
-      style={{flex: 1}}>
-      <ScrollView>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={styles.container}>
-            <Text style={styles.notion}>残りの無料質問回数は3回です。</Text>
-            <View style={styles.component}>
-              <Text style={styles.item}>科目</Text>
-              <Subject updateSubject={updateSubject} />
-            </View>
-            <View style={styles.component}>
-              <Text style={styles.item}>分野</Text>
-              <Field subject={subject} updateField={updateField} />
-            </View>
-            <View style={styles.component}>
-              <Text style={styles.item}>ハッシュタグ</Text>
-              <TextInput
-                style={styles.hashtag}
-                value={hashtag}
-                onChangeText={setHashtag}
-              />
-            </View>
-            <View style={styles.component}>
-              <Text style={styles.item}>問題の種類</Text>
-              <TextInput
-                style={styles.hashtag}
-                value={type}
-                onChangeText={setType}
-              />
-            </View>
-            <View style={styles.component}>
-              <Text style={styles.item}>参考書名</Text>
-              <TextInput
-                style={styles.hashtag}
-                value={bookName}
-                onChangeText={setBookName}
-              />
-            </View>
-            <Text style={styles.body}>わからない問題の画像</Text>
-            <TouchableHighlight
-              style={styles.button}
-              onPress={() => showPicker1()}
-              underlayColor="transparent">
-              {image1 ? (
-                <Image style={styles.image} source={{uri: image1}} />
-              ) : (
-                <View style={styles.wrapper}>
-                  <MaterialCommunityIcons
-                    style={styles.icon}
-                    name="image-filter"
+    <UidContext.Consumer>
+      {(state) => (
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : null}
+          style={{flex: 1}}>
+          <ScrollView>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+              <View style={styles.container}>
+                <Text style={styles.notion}>残りの無料質問回数は3回です。</Text>
+                <View style={styles.component}>
+                  <Text style={styles.item}>科目</Text>
+                  <Subject updateSubject={updateSubject} />
+                </View>
+                <View style={styles.component}>
+                  <Text style={styles.item}>分野</Text>
+                  <Field subject={subject} updateField={updateField} />
+                </View>
+                <View style={styles.component}>
+                  <Text style={styles.item}>ハッシュタグ</Text>
+                  <TextInput
+                    style={styles.hashtag}
+                    value={hashtag}
+                    onChangeText={setHashtag}
                   />
                 </View>
-              )}
-            </TouchableHighlight>
-            <Text style={styles.body}>
-              わからない部分の解答画像(答えがある場合)
-            </Text>
-            <TouchableHighlight
-              style={styles.button}
-              onPress={() => showPicker2()}
-              underlayColor="transparent">
-              {image2 ? (
-                <Image style={styles.image} source={{uri: image2}} />
-              ) : (
-                <View style={styles.wrapper}>
-                  <MaterialCommunityIcons
-                    style={styles.icon}
-                    name="image-filter"
+                <View style={styles.component}>
+                  <Text style={styles.item}>問題の種類</Text>
+                  <TextInput
+                    style={styles.hashtag}
+                    value={type}
+                    onChangeText={setType}
                   />
                 </View>
-              )}
-            </TouchableHighlight>
-            <Text style={styles.body}>どこがわからないのか</Text>
-            <TextInput
-              style={styles.postInput}
-              multiline
-              value={title}
-              onChangeText={setTitle}
-            />
-            <CircleButton
-              onPress={() => {
-                uploadImage1(image1URL, image1Type, image1Name);
-                uploadImage2(image2URL, image2Type, image2Name);
-                post(
-                  subject,
-                  field,
-                  title,
-                  hashtag,
-                  type,
-                  bookName,
-                  image1,
-                  image1Type,
-                  image1Name,
-                  image1URL,
-                  image2,
-                  image2Type,
-                  image2Name,
-                  image2URL,
-                  {navigation},
-                );
-              }}>
-              send
-            </CircleButton>
-          </View>
-        </TouchableWithoutFeedback>
-      </ScrollView>
-    </KeyboardAvoidingView>
+                <View style={styles.component}>
+                  <Text style={styles.item}>参考書名</Text>
+                  <TextInput
+                    style={styles.hashtag}
+                    value={bookName}
+                    onChangeText={setBookName}
+                  />
+                </View>
+                <Text style={styles.body}>わからない問題の画像</Text>
+                <TouchableHighlight
+                  style={styles.button}
+                  onPress={() => showPicker1()}
+                  underlayColor="transparent">
+                  {source1 ? (
+                    <Image style={styles.image} source={{uri: source1}} />
+                  ) : (
+                    <View style={styles.wrapper}>
+                      <MaterialCommunityIcons
+                        style={styles.icon}
+                        name="image-filter"
+                      />
+                    </View>
+                  )}
+                </TouchableHighlight>
+                <Text style={styles.body}>
+                  わからない部分の解答画像(答えがある場合)
+                </Text>
+                <TouchableHighlight
+                  style={styles.button}
+                  onPress={() => showPicker2()}
+                  underlayColor="transparent">
+                  {source2 ? (
+                    <Image style={styles.image} source={{uri: source2}} />
+                  ) : (
+                    <View style={styles.wrapper}>
+                      <MaterialCommunityIcons
+                        style={styles.icon}
+                        name="image-filter"
+                      />
+                    </View>
+                  )}
+                </TouchableHighlight>
+                <Text style={styles.body}>どこがわからないのか</Text>
+                <TextInput
+                  style={styles.postInput}
+                  multiline
+                  value={body}
+                  onChangeText={setBody}
+                />
+                <CircleButton
+                  onPress={() => {uploadImage1(image1,state.uid,{navigation})}}>
+                  send
+                </CircleButton>
+              </View>
+            </TouchableWithoutFeedback>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      )}
+    </UidContext.Consumer>
   );
 }
 

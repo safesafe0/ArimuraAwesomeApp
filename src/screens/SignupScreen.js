@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState,useContext} from 'react';
 import {
   StyleSheet,
   View,
@@ -22,53 +22,50 @@ import auth from '@react-native-firebase/auth';
 import {AuthContext} from '../components/Context';
 import firestore from '@react-native-firebase/firestore';
 
-async function register(uid,nickname,grade,firstSchool) {
-  await firestore()
-    .collection('public')
-    .doc('v1')
-    .collection('users')
-    .doc(uid)
-    .set({
-      nickname: nickname,
-      grade: grade,
-      firstSchool:firstSchool,
-      createdAt:new Date(),
-    })
-    .then(function (docRef) {
-      console.log(docRef.id);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-}
-
-function signup(email, password, {navigation}) {
-  auth()
-  .createUserWithEmailAndPassword(email, password)
-  .then(function (user) {
-    console.log('Success to Signup');
-    setUid(user.uid);
-    navigation.navigate('Signin');
-    alert('ユーザー登録が完了しました!');
-  })
-  .catch(function (error) {
-    alert(error.message);
-    console.log(error);
-  });
-}
-
 function SignupScreen({navigation}) {
-  const [uid,setUid]=useState('');
+  // const [uid,setUid]=useState('');
   const [email,setEmail]=useState('');
   const [password,setPassword]=useState('');
   const [nickname,setNickname]=useState('');
   const [grade,setGrade]=useState('');
   const {signedIn} = useContext(AuthContext);
-  function updateGrade(state){
-    setGrade(state);
-  }
   const [firstSchool,setFirstSchool]=useState('');
   const [check,setCheck]=useState(false);
+  function updateGrade(state){setGrade(state);
+  }
+  function register(uid) {
+    firestore()
+      .collection('public')
+      .doc('v1')
+      .collection('users')
+      .doc(uid)
+      .set({
+        nickname: nickname,
+        grade: grade,
+        firstSchool:firstSchool,
+        createdAt:new Date(),
+      })
+      .then(()=>{
+        signedIn(uid);
+        alert('ユーザー登録が完了しました!');
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+  function signup() {
+    auth()
+    .createUserWithEmailAndPassword(email, password)
+    .then(function (result) {
+      console.log('Success to Signup');
+      console.log(result.user.uid)
+      register(result.user.uid);
+    })
+    .catch(function (error) {
+      alert(error.message);
+      console.log(error);
+    });
+  }
 
   return (
     <KeyboardAvoidingView
@@ -132,10 +129,7 @@ function SignupScreen({navigation}) {
             <TouchableHighlight
               style={styles.button}
               onPress={() => {
-                signup(email,password,{navigation})
-                signedIn(uid)
-                register(uid,nickname,grade,firstSchool)
-              }}
+                signup()}}
               underlayColor="#c70f66">
               <Text style={styles.buttonTitle}>登録する</Text>
             </TouchableHighlight>

@@ -1,11 +1,5 @@
 import 'react-native-gesture-handler';
-import React, {
-  useState,
-  useCallback,
-  useReducer,
-  useMemo,
-  useEffect,
-} from 'react';
+import React, {useReducer, useMemo, useEffect} from 'react';
 import auth from '@react-native-firebase/auth';
 
 import {NavigationContainer} from '@react-navigation/native';
@@ -36,6 +30,8 @@ const App: () => React$Node = () => {
           return {
             ...prevState,
             uid: action.uid,
+            displayName: action.name,
+            URL: action.photoURL,
             isLoading: false,
           };
         case 'SIGN_IN':
@@ -56,21 +52,30 @@ const App: () => React$Node = () => {
       isLoading: true,
       isSignin: false,
       uid: '',
+      displayName: '',
+      URL: '',
     },
   );
   useEffect(() => {
-    const auther = auth().onAuthStateChanged(function (user) {
-      let userToken;
-      if (user) {
-        userToken = user.uid;
-        console.log(userToken);
-      } else {
-        console.log('user is not logined!');
-        userToken = '';
-      }
-      dispatch({type: 'RESTORE_TOKEN', uid: userToken});
+    const user = auth().currentUser;
+    let userToken;
+    let name;
+    let photoURL;
+    if (user) {
+      userToken = user.uid;
+      name = user.displayName;
+      photoURL = user.photoURL;
+      console.log(userToken);
+    } else {
+      console.log('user is not logined!');
+      userToken = '';
+    }
+    dispatch({
+      type: 'RESTORE_TOKEN',
+      uid: userToken,
+      displayName: name,
+      URL: photoURL,
     });
-    return auther;
   }, []);
 
   const authContext = useMemo(
