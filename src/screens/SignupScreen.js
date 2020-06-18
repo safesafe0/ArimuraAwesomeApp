@@ -1,4 +1,4 @@
-import React, {useState,useContext} from 'react';
+import React, {useState, useContext} from 'react';
 import {
   StyleSheet,
   View,
@@ -12,11 +12,7 @@ import {
   Keyboard,
   ScrollView,
 } from 'react-native';
-import {
-  CheckBox,
-  Body,
-  ListItem,
-} from 'native-base';
+import {CheckBox, Body, ListItem} from 'native-base';
 import {GradeItem} from '../elements/PickerItem';
 import auth from '@react-native-firebase/auth';
 import {AuthContext} from '../components/Context';
@@ -24,14 +20,15 @@ import firestore from '@react-native-firebase/firestore';
 
 function SignupScreen({navigation}) {
   // const [uid,setUid]=useState('');
-  const [email,setEmail]=useState('');
-  const [password,setPassword]=useState('');
-  const [nickname,setNickname]=useState('');
-  const [grade,setGrade]=useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [grade, setGrade] = useState('');
   const {signedIn} = useContext(AuthContext);
-  const [firstSchool,setFirstSchool]=useState('');
-  const [check,setCheck]=useState(false);
-  function updateGrade(state){setGrade(state);
+  const [firstSchool, setFirstSchool] = useState('');
+  const [check, setCheck] = useState(false);
+  function updateGrade(state) {
+    setGrade(state);
   }
   function register(uid) {
     firestore()
@@ -42,10 +39,10 @@ function SignupScreen({navigation}) {
       .set({
         nickname: nickname,
         grade: grade,
-        firstSchool:firstSchool,
-        createdAt:new Date(),
+        firstSchool: firstSchool,
+        createdAt: new Date(),
       })
-      .then(()=>{
+      .then(() => {
         signedIn(uid);
         alert('ユーザー登録が完了しました!');
       })
@@ -55,91 +52,92 @@ function SignupScreen({navigation}) {
   }
   function signup() {
     auth()
-    .createUserWithEmailAndPassword(email, password)
-    .then(function (result) {
-      console.log('Success to Signup');
-      console.log(result.user.uid)
-      register(result.user.uid);
-    })
-    .catch(function (error) {
-      alert(error.message);
-      console.log(error);
-    });
+      .createUserWithEmailAndPassword(email, password)
+      .then(function (result) {
+        console.log('Success to Signup');
+        console.log(result.user.uid);
+        register(result.user.uid);
+      })
+      .catch(function (error) {
+        alert(error.message);
+        console.log(error);
+      });
   }
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS==='ios'?'padding':null}
-      style={{flex:1}}
-    >
+      behavior={Platform.OS === 'ios' ? 'padding' : null}
+      style={{flex: 1}}>
       <ScrollView>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.container}>
-            <Image 
+            <Image
               style={styles.logo}
               source={require('../images/Q-LINE-icon.png')}
             />
             <Text style={styles.title}>メンバー登録</Text>
-            <TextInput style={styles.input}
-            value={nickname}
-            placeholder="ニックネーム"
-            onChangeText={setNickname}
+            <TextInput
+              style={styles.input}
+              value={nickname}
+              placeholder="ニックネーム"
+              onChangeText={setNickname}
             />
-            <TextInput style={styles.input}
-            value={email}
-            placeholder="Email Address"
-            onChangeText={setEmail}
+            <TextInput
+              style={styles.input}
+              value={email}
+              placeholder="Email Address"
+              onChangeText={setEmail}
             />
-            <TextInput style={styles.input}
-            value={password}
-            placeholder="Password"
-            onChangeText={setPassword}
-            secureTextEntry
+            <TextInput
+              style={styles.input}
+              value={password}
+              placeholder="Password"
+              onChangeText={setPassword}
+              secureTextEntry
             />
-            <GradeItem updateGrade={updateGrade}/>
-            <TextInput style={styles.input}
-            value={firstSchool}
-            placeholder="志望校"
-            onChangeText={setFirstSchool}
+            <GradeItem updateGrade={updateGrade} />
+            <TextInput
+              style={styles.input}
+              value={firstSchool}
+              placeholder="志望校"
+              onChangeText={setFirstSchool}
             />
             <ListItem>
-              <CheckBox 
-              checked={check}
-              onPress={()=>setCheck(!check)}/>
-              <Body style={{marginLeft:10,
-              marginBottom:10,}}>
+              <CheckBox checked={check} onPress={() => setCheck(!check)} />
+              <Body style={{marginLeft: 10, marginBottom: 10}}>
                 <Text>
-                  <Text 
+                  <Text
                     style={styles.link}
-                    onPress={()=>navigation.navigate('Home')}
-                  >利用規約</Text>
-                  <Text 
-                    style={styles.lightText}
-                  >と</Text>
-                  <Text 
+                    onPress={() => navigation.navigate('Home')}>
+                    利用規約
+                  </Text>
+                  <Text style={styles.lightText}>と</Text>
+                  <Text
                     style={styles.link}
-                    onPress={()=>navigation.navigate('Signup')}
-                  >プライバシーポリシー</Text>
-                  <Text 
-                    style={styles.lightText}
-                  >に同意する</Text>
+                    onPress={() => navigation.navigate('Signup')}>
+                    プライバシーポリシー
+                  </Text>
+                  <Text style={styles.lightText}>に同意する</Text>
                 </Text>
               </Body>
             </ListItem>
             <TouchableHighlight
               style={styles.button}
               onPress={() => {
-                signup()}}
+                signup();
+              }}
               underlayColor="#c70f66">
               <Text style={styles.buttonTitle}>登録する</Text>
             </TouchableHighlight>
-            <Text style={{alignSelf:'center',
-             marginTop:30}}>
-              <Text style={styles.lightText}>既にアカウントをお持ちですか？</Text>
+            <Text style={{alignSelf: 'center', marginTop: 30}}>
+              <Text style={styles.lightText}>
+                既にアカウントをお持ちですか？
+              </Text>
               <Text
-                  style={styles.link}
-                  onPress={()=>navigation.navigate('Login')}
-                >Sign In</Text>
+                style={styles.link}
+                onPress={() => navigation.navigate('Login')}>
+                Sign In
+              </Text>
             </Text>
           </View>
         </TouchableWithoutFeedback>
@@ -151,12 +149,12 @@ function SignupScreen({navigation}) {
 const styles = StyleSheet.create({
   container: {
     padding: 24,
-    flex:1,
-    justifyContent:'center',
+    flex: 1,
+    justifyContent: 'center',
   },
-  logo:{
+  logo: {
     alignSelf: 'center',
-    marginBottom:20,
+    marginBottom: 20,
   },
   input: {
     backgroundColor: '#eee',
@@ -184,11 +182,11 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
   },
-  lightText:{
-    color:'#0008'
+  lightText: {
+    color: '#0008',
   },
-  link:{
-    color:'#0066c0'
+  link: {
+    color: '#0066c0',
   },
 });
 

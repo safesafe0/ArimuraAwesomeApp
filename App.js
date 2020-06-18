@@ -12,6 +12,7 @@ import LoginScreen from './src/screens/LoginScreen';
 import SignupScreen from './src/screens/SignupScreen';
 import SigninScreen from './src/screens/SigninScreen';
 import MypageScreen from './src/screens/MypageScreen';
+import SettingScreen from './src/screens/SettingScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import TimeLineScreen from './src/screens/TimeLineScreen';
 import PostScreen from './src/screens/PostScreen';
@@ -111,7 +112,8 @@ const App: () => React$Node = () => {
           </>
         ) : (
           <>
-            <SigninStack.Screen name="Mypage" component={MypageScreen} />
+            <SigninStack.Screen name="Mypage" component={MypageScreen}/>
+            <SigninStack.Screen name="Setting" component={SettingScreen}options={{headerTitle:'登録情報の変更'}}/>
           </>
         )}
       </SigninStack.Navigator>

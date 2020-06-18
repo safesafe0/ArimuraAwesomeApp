@@ -1,7 +1,6 @@
 import React, {useState, useCallback} from 'react';
 import {FlatList, StyleSheet, View, ActivityIndicator} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
-import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import {UidContext} from '../components/Context';
 import Post from '../elements/Post';
@@ -55,7 +54,7 @@ function TimeLineScreen(props) {
         <View style={styles.container}>
           <FlatList
             data={postList}
-            keyExtractor={(item) => item.id}
+            keyExtractor9={(item) => item.id}
             renderItem={({item}) => <Post {...item} />}
           />
           <CircleButton

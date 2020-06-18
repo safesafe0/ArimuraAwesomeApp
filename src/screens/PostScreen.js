@@ -78,54 +78,6 @@ function PostScreen({navigation}) {
       }
     });
   }
-  // function uploadImage(imageURL, imageType, imageName) {
-  //   if (image){
-  //     const id=Math.random()*100000000000000000;
-  //     const iid=Math.random()*100000000000000000;
-  //     const uuid=''+id+''+iid;
-  //     const fileName=uuid+'.'+imageType;
-  //     console.log(fileName);
-  //     storage()
-  //     .ref('post')
-  //     .child('img')
-  //     .child(fileName)
-  //     .putFile(image)
-  //     .on(
-  //       storage.TaskEvent.STATE_CHANGED,
-  //       snapshot=>{
-  //       }
-  //     )
-  //   }
-  //   const metadata = {
-  //     contentType: `${imageType}`,
-  //   };
-  //   const reference = storage().ref('images').child(`${imageName}`);
-  //   await reference.putFile(imageURL, metadata).catch(() => {
-  //     alert('画像の保存に失敗しました');
-  //   });
-  //   await reference
-  //     .getDownloadURL()
-  //     .then((url) => setImage1URL(url))
-  //     .catch(() => {
-  //       alert('失敗しました');
-  //     });
-  // }
-
-  // async function uploadImage2(image2URL, image2Type, image2Name) {
-  //   const metadata = {
-  //     contentType: `image/${image2Type}`,
-  //   };
-  //   const reference = storage().ref('images').child(`${image2Name}`);
-  //   await reference.putFile(image2URL, metadata).catch(() => {
-  //     alert('画像の保存に失敗しました');
-  //   });
-  //   await reference
-  //     .getDownloadURL()
-  //     .then((url) => setImage2URL(url))
-  //     .catch(() => {
-  //       alert('失敗しました');
-  //     });
-  // }
   async function uploadImage1(image,uid,{navigation}) {
     if(image){
       const id=Math.random()*100000000000000000;
