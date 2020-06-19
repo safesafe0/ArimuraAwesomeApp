@@ -109,7 +109,7 @@ function MypageScreen({navigation}) {
   return (
     <UidContext.Consumer>
       {(state) => (
-        <ScrollView>
+        <ScrollView nestedScrollEnabled>
           <View style={styles.container}>
             <Image
             style={styles.header}
@@ -142,7 +142,8 @@ const styles = StyleSheet.create({
     paddingBottom:30,
   },
   header:{
-
+    width:'100%',
+    height:200,
   },
   avatar:{
     backgroundColor:'#fff',

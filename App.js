@@ -113,7 +113,7 @@ const App: () => React$Node = () => {
         ) : (
           <>
             <SigninStack.Screen name="Mypage" component={MypageScreen}/>
-            <SigninStack.Screen name="Setting" component={SettingScreen}options={{headerTitle:'登録情報の変更'}}/>
+            <SigninStack.Screen name="Setting" component={SettingScreen}options={{headerTitle:'登録情報の更新'}}/>
           </>
         )}
       </SigninStack.Navigator>

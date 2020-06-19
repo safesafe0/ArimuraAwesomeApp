@@ -1,6 +1,6 @@
 import ImagePicker from 'react-native-image-picker';
 
-function Imagepicker({updateImage,updateType}){
+function Imagepicker({updateImage, updateType}) {
   let options = {
     title: '画像を選択',
     storageOptions: {

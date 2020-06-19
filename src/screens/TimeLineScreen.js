@@ -37,6 +37,7 @@ function TimeLineScreen(props) {
       .doc(doc.get('uid'))
       .onSnapshot((documentSnapshot) => {
         console.log(doc.get('uid'))
+        console.log(doc.id)
         postList.push({
           ...doc.data(),
           uname:documentSnapshot.get('nickname'),
@@ -54,7 +55,7 @@ function TimeLineScreen(props) {
         <View style={styles.container}>
           <FlatList
             data={postList}
-            keyExtractor9={(item) => item.id}
+            keyExtractor={(item) => item.id}
             renderItem={({item}) => <Post {...item} />}
           />
           <CircleButton
