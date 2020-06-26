@@ -30,12 +30,12 @@ function SignupScreen({navigation}) {
   function updateGrade(state) {
     setGrade(state);
   }
-  function register(uid) {
+  function register(user) {
     firestore()
       .collection('public')
       .doc('v1')
       .collection('users')
-      .doc(uid)
+      .doc(user.uid)
       .set({
         nickname: nickname,
         grade: grade,
@@ -43,7 +43,7 @@ function SignupScreen({navigation}) {
         createdAt: new Date(),
       })
       .then(() => {
-        signedIn(uid);
+        signedIn(user);
         alert('ユーザー登録が完了しました!');
       })
       .catch(function (error) {
@@ -56,7 +56,7 @@ function SignupScreen({navigation}) {
       .then(function (result) {
         console.log('Success to Signup');
         console.log(result.user.uid);
-        register(result.user.uid);
+        register(result.user);
       })
       .catch(function (error) {
         alert(error.message);

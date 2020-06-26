@@ -1,23 +1,15 @@
 import React from 'react';
-import{ 
-StyleSheet,
-View,
-Text,
-Image,
-TouchableOpacity,
-}from 'react-native';
-import { Avatar } from 'react-native-elements';
-import firestore from '@react-native-firebase/firestore';
+import { 
+  StyleSheet,
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 function Post(props){
-  async function toggleComplete(){
-    await firestore()
-    .collection('posts')
-    .doc(id)
-    .update({
-      complete: !complete,
-    });
-  }
+  const navigation = useNavigation();
   const dateString = (date) => {
     if (date == null) { return ''; }
     const dateObject = date.toDate();
@@ -26,17 +18,17 @@ function Post(props){
   return(
     <TouchableOpacity
     style={styles.postListItem}
-    onPress={()=>navigation.navigate('Detail',props.id)}
+    onPress={()=>navigation.navigate('Detail',{item:props})}
     >
       <View style={styles.wrapper}>
         <View style={styles.left}>
           {props.img==null?(
-            <Avatar
+            <Image
             rounded
             style={styles.avatar}
             source={require('../images/Q-LINE-icon.png')}/>
           ):(
-            <Avatar
+            <Image
             rounded
             style={styles.avatar}
             source={props.uimg}/>
@@ -76,12 +68,12 @@ function Post(props){
 
 const styles = StyleSheet.create({
   postListItem: {
-    marginLeft:30,
-    marginRight:30,
+    marginLeft:20,
+    marginRight:20,
     marginTop:10,
     marginBottom:5,
     paddingLeft: 12,
-    paddingRight: 16,
+    paddingRight: 18,
     paddingTop: 10,
     paddingBottom: 8,
     borderBottomWidth: 1,
@@ -152,7 +144,7 @@ const styles = StyleSheet.create({
   },
   text2:{
     alignSelf:'flex-end',
-    marginRight:10,
+    // marginRight:10,
   },
 });
 

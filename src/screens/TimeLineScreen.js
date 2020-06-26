@@ -6,7 +6,7 @@ import {UidContext} from '../components/Context';
 import Post from '../elements/Post';
 import CircleButton from '../elements/CircleButton';
 
-function TimeLineScreen(props) {
+function TimeLineScreen({navigation}) {
   const [postList, setPostList] = useState([]);
   const [loading, setLoading] = useState(true);
   useFocusEffect(
@@ -16,7 +16,8 @@ function TimeLineScreen(props) {
         .orderBy('createdAt', 'desc')
         .onSnapshot(async (querySnapshot) => {
           const postList = [];
-          for(let doc of querySnapshot.docs){await getPost(postList,doc)}
+          for(let doc of querySnapshot.docs){
+            await getPost(postList,doc)}
           setPostList(postList);
           setLoading(false);
         });
@@ -25,8 +26,8 @@ function TimeLineScreen(props) {
   function toggleButton(uid) {
     {
       uid === ''
-        ? (props.navigation.navigate('Signin'), alert('Please Login!'))
-        : props.navigation.navigate('Post', uid);
+        ? (navigation.navigate('Signin'), alert('Please Login!'))
+        : navigation.navigate('Post', uid);
     }
   }
   function getPost(postList,doc) {
@@ -36,10 +37,9 @@ function TimeLineScreen(props) {
       .collection('users')
       .doc(doc.get('uid'))
       .onSnapshot((documentSnapshot) => {
-        console.log(doc.get('uid'))
-        console.log(doc.id)
         postList.push({
           ...doc.data(),
+          uid:doc.get('uid'),
           uname:documentSnapshot.get('nickname'),
           uimg:documentSnapshot.get('img'),
           id: doc.id,
@@ -47,7 +47,7 @@ function TimeLineScreen(props) {
       });
   }
   if (loading) {
-    return <ActivityIndicator />;
+    return <ActivityIndicator />
   }
   return (
     <UidContext.Consumer>

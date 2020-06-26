@@ -27,11 +27,11 @@ function LoginScreen({navigation}) {
   function login(email, password, {navigation}) {
     auth()
       .signInWithEmailAndPassword(email, password)
-      .then(function (user) {
+      .then(function (User) {
         navigation.navigate('Home');
         alert('Login Success!');
-        const uid=user.uid;
-        signedIn({uid});
+        signedIn(User.user);
+        console.log(User.user.uid);
       })
       .catch(function (error) {
         alert(error.message);

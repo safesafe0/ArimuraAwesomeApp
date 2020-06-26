@@ -11,6 +11,7 @@ import {
   Platform,
   Keyboard,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import ImagePicker from 'react-native-image-picker';
@@ -31,6 +32,7 @@ function PostScreen({navigation}) {
   const [source1, setSource1] = useState('');
   const [image2, setImage2] = useState('');
   const [source2, setSource2] = useState('');
+  const [loading, setLoading] = useState(false);
 
   function updateSubject(state) {
     setSubject(state);
@@ -54,7 +56,7 @@ function PostScreen({navigation}) {
       } else {
         console.log(response.path);
         setImage1(response.path);
-        setSource1(response.uri)
+        setSource1(response.uri);
       }
     });
   }
@@ -79,6 +81,7 @@ function PostScreen({navigation}) {
     });
   }
   async function uploadImage1(image,uid,{navigation}) {
+    setLoading(true);
     if(image){
       const id=Math.random()*100000000000000000;
       const iid=Math.random()*100000000000000000;
@@ -91,6 +94,7 @@ function PostScreen({navigation}) {
       .child(fileName)
       .putFile(image)
       .catch(()=>{
+        setLoading(false);
         alert('画像の保存に失敗しました');
       })
       .then(async()=>{
@@ -100,6 +104,7 @@ function PostScreen({navigation}) {
         .child(fileName)
         .getDownloadURL()
         .catch(()=>{
+          setLoading(false);
           alert('画像のURLの取得に失敗しました');
         })
         .then((downloadURL)=>{
@@ -123,6 +128,7 @@ function PostScreen({navigation}) {
       .child(fileName)
       .putFile(image)
       .catch(()=>{
+        setLoading(false);
         alert('画像の保存に失敗しました');
       })
       .then(async()=>{
@@ -132,6 +138,7 @@ function PostScreen({navigation}) {
         .child(fileName)
         .getDownloadURL()
         .catch(()=>{
+          setLoading(false);
           alert('画像のURLの取得に失敗しました');
         })
         .then((downloadURL)=>{
@@ -162,13 +169,18 @@ function PostScreen({navigation}) {
         createdAt: new Date(),
       })
       .then(function (docRef) {
+        setLoading(false);
         console.log(docRef.id);
         console.log('書き込みができました');
         navigation.navigate('TimeLine');
       })
       .catch(function (error) {
+        setLoading(false);
         console.log(error);
       });
+  }
+  if (loading) {
+    return <ActivityIndicator />
   }
   return (
     <UidContext.Consumer>
@@ -201,8 +213,7 @@ function PostScreen({navigation}) {
                   <TextInput
                     style={styles.hashtag}
                     value={type}
-                    onChangeText={setType}
-                  />
+                    onChangeText={setType}/>
                 </View>
                 <View style={styles.component}>
                   <Text style={styles.item}>参考書名</Text>

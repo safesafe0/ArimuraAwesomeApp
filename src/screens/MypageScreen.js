@@ -18,7 +18,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import Post from '../elements/Post';
 
 function MypageScreen({navigation}) {
-  const {uid}=useContext(UidContext);
   const [nickname,setNickname]=useState(null);
   const [img,setImg]=useState(null);
   const [header,setHeader]=useState(null);
@@ -27,6 +26,7 @@ function MypageScreen({navigation}) {
   const [postList, setPostList] = useState([]);
   const [loading, setLoading] = useState(true);
   const {signedOut} = useContext(AuthContext);
+  const {uid}=useContext(UidContext);
   function signOut() {
     auth().signOut();
     signedOut();
@@ -83,55 +83,51 @@ function MypageScreen({navigation}) {
   );
   function getpost(name,img){
     firestore()
-        .collection('public')
-        .doc('v1')
-        .collection('users')
-        .doc(uid)
-        .collection('posts')
-        .orderBy('createdAt', 'desc')
-        .onSnapshot((querySnapshot) => {
-          const postList = [];
-          querySnapshot.forEach((doc)=>{
-            postList.push({
-              ...doc.data(),
-              uname:name,
-              uimg:img,
-              id:doc.id,
-            })
-          })
-          setPostList(postList);
-          setLoading(false);
+    .collection('public')
+    .doc('v1')
+    .collection('users')
+    .doc(uid)
+    .collection('posts')
+    .orderBy('createdAt', 'desc')
+    .onSnapshot((querySnapshot) => {
+      const postList = [];
+      querySnapshot.forEach((doc)=>{
+        postList.push({
+          ...doc.data(),
+          uname:name,
+          uimg:img,
+          id:doc.id,
+        })
+      })
+      setPostList(postList);
+      setLoading(false);
       });
   }
   if (loading) {
     return <ActivityIndicator />;
   }
   return (
-    <UidContext.Consumer>
-      {(state) => (
-        <ScrollView nestedScrollEnabled>
-          <View style={styles.container}>
-            <Image
-            style={styles.header}
-            source={header}/>
-            <Image
-            style={styles.avatar}
-            source={img}/>
-            <Text style={styles.nickname}>{nickname}</Text>
-            <Text style={styles.body}>{grade}</Text>
-            <Text style={styles.body}>{firstSchool}志望</Text>
-            <Button title="signOut" onPress={signOut} />
-            <Text style={styles.p}>いままでの質問一覧</Text>
-            <FlatList
-            nestedScrollEnabled
-            data={postList}
-            keyExtractor={(item) => item.id}
-            renderItem={({item}) => <Post {...item} />}
-            />
-          </View>
-        </ScrollView>
-      )}
-    </UidContext.Consumer>
+    <ScrollView nestedScrollEnabled>
+      <View style={styles.container}>
+        <Image
+        style={styles.header}
+        source={header}/>
+        <Image
+        style={styles.avatar}
+        source={img}/>
+        <Text style={styles.nickname}>{nickname}</Text>
+        <Text style={styles.body}>{grade}</Text>
+        <Text style={styles.body}>{firstSchool}志望</Text>
+        <Button title="signOut" onPress={signOut} />
+        <Text style={styles.p}>いままでの質問一覧</Text>
+        <FlatList
+        nestedScrollEnabled
+        data={postList}
+        keyExtractor={(item) => item.id}
+        renderItem={({item}) => <Post {...item} />}
+        />
+      </View>
+    </ScrollView>
   );
 }
 

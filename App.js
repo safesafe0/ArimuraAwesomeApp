@@ -16,7 +16,8 @@ import SettingScreen from './src/screens/SettingScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import TimeLineScreen from './src/screens/TimeLineScreen';
 import PostScreen from './src/screens/PostScreen';
-import PostDetailScreen from './src/screens/PostDetailScreen';
+import DetailScreen from './src/screens/DetailScreen';
+import ReplyScreen from './src/screens/ReplyScreen';
 
 const App: () => React$Node = () => {
   const Tab = createMaterialBottomTabNavigator();
@@ -33,25 +34,24 @@ const App: () => React$Node = () => {
             uid: action.uid,
             displayName: action.name,
             URL: action.photoURL,
-            isLoading: false,
           };
         case 'SIGN_IN':
           return {
             ...prevState,
-            isSignin: true,
             uid: action.uid,
+            displayName: action.name,
+            URL: action.photoURL,
           };
         case 'SIGN_OUT':
           return {
             ...prevState,
-            isSignin: false,
             uid: '',
+            displayName:'',
+            URL:'',
           };
       }
     },
     {
-      isLoading: true,
-      isSignin: false,
       uid: '',
       displayName: '',
       URL: '',
@@ -70,6 +70,8 @@ const App: () => React$Node = () => {
     } else {
       console.log('user is not logined!');
       userToken = '';
+      name = '';
+      photoURL = '';
     }
     dispatch({
       type: 'RESTORE_TOKEN',
@@ -81,7 +83,7 @@ const App: () => React$Node = () => {
 
   const authContext = useMemo(
     () => ({
-      signedIn: (userToken) => dispatch({type: 'SIGN_IN', uid: userToken}),
+      signedIn: (userToken) => dispatch({type: 'SIGN_IN', uid: userToken.uid,name:userToken.displayname,URL:userToken.photoURL}),
       signedOut: () => dispatch({type: 'SIGN_OUT'}),
     }),
     [],
@@ -97,7 +99,6 @@ const App: () => React$Node = () => {
     return (
       <TimeLineStack.Navigator>
         <TimeLineStack.Screen name="TimeLine" component={TimeLineScreen} />
-        <TimeLineStack.Screen name="Detail" component={PostDetailScreen} />
       </TimeLineStack.Navigator>
     );
   }
@@ -156,6 +157,8 @@ const App: () => React$Node = () => {
               options={{headerShown: false}}
             />
             <RootStack.Screen name="Post" component={PostScreen} />
+            <RootStack.Screen name="Detail" component={DetailScreen} />
+            <RootStack.Screen name="Reply" component={ReplyScreen} />
           </RootStack.Navigator>
         </NavigationContainer>
       </UidContext.Provider>
