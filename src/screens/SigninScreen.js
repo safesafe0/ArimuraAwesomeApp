@@ -23,7 +23,7 @@ function SigninScreen({navigation}) {
       </View>
       <TouchableHighlight
         style={styles.button}
-        onPress={() => navigation.navigate('Signup')}
+        onPress={() => navigation.navigate('SSignup')}
         underlayColor="#1e90ff">
         <Text style={styles.buttonTitle}>新規登録</Text>
       </TouchableHighlight>
@@ -38,7 +38,7 @@ function SigninScreen({navigation}) {
           <Text style={styles.lightText}>講師用アカウント </Text>
           <Text
             style={styles.link}
-            onPress={() => navigation.navigate('Login')}>
+            onPress={() => navigation.navigate('TSignup')}>
             Sign in
           </Text>
         </Text>

@@ -1,6 +1,7 @@
 import 'react-native-gesture-handler';
 import React, {useReducer, useMemo, useEffect} from 'react';
 import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
@@ -18,6 +19,8 @@ import TimeLineScreen from './src/screens/TimeLineScreen';
 import PostScreen from './src/screens/PostScreen';
 import DetailScreen from './src/screens/DetailScreen';
 import ReplyScreen from './src/screens/ReplyScreen';
+import TSignupScreen from './src/screens/TSignupScreen';
+import SSignupScreen from './src/screens/SSignupScreen';
 
 const App: () => React$Node = () => {
   const Tab = createMaterialBottomTabNavigator();
@@ -34,6 +37,7 @@ const App: () => React$Node = () => {
             uid: action.uid,
             displayName: action.name,
             URL: action.photoURL,
+            tors: action.ts,
           };
         case 'SIGN_IN':
           return {
@@ -41,6 +45,7 @@ const App: () => React$Node = () => {
             uid: action.uid,
             displayName: action.name,
             URL: action.photoURL,
+            tors:action.ts,
           };
         case 'SIGN_OUT':
           return {
@@ -48,6 +53,7 @@ const App: () => React$Node = () => {
             uid: '',
             displayName:'',
             URL:'',
+            ts:'s',
           };
       }
     },
@@ -55,6 +61,7 @@ const App: () => React$Node = () => {
       uid: '',
       displayName: '',
       URL: '',
+      tors:'',
     },
   );
   useEffect(() => {
@@ -62,7 +69,13 @@ const App: () => React$Node = () => {
     let userToken;
     let name;
     let photoURL;
+    let ts;
     if (user) {
+      async function tscheck(){
+        let check=await firestore().collection('public').doc('v1').collection('users').doc(user.uid).get();
+        return check;
+      }
+      ts=tscheck.get('ts');
       userToken = user.uid;
       name = user.displayName;
       photoURL = user.photoURL;
@@ -72,18 +85,20 @@ const App: () => React$Node = () => {
       userToken = '';
       name = '';
       photoURL = '';
+      ts='s';
     }
     dispatch({
       type: 'RESTORE_TOKEN',
       uid: userToken,
       displayName: name,
       URL: photoURL,
+      ts:ts,
     });
   }, []);
 
   const authContext = useMemo(
     () => ({
-      signedIn: (userToken) => dispatch({type: 'SIGN_IN', uid: userToken.uid,name:userToken.displayname,URL:userToken.photoURL}),
+      signedIn: (userToken,ts) => dispatch({type: 'SIGN_IN', uid: userToken.uid,name:userToken.displayname,URL:userToken.photoURL,tors:ts,}),
       signedOut: () => dispatch({type: 'SIGN_OUT'}),
     }),
     [],
@@ -159,6 +174,8 @@ const App: () => React$Node = () => {
             <RootStack.Screen name="Post" component={PostScreen} />
             <RootStack.Screen name="Detail" component={DetailScreen} />
             <RootStack.Screen name="Reply" component={ReplyScreen} />
+            <RootStack.Screen name="TSignup" component={TSignupScreen} />
+            <RootStack.Screen name="SSignup" component={SSignupScreen} />
           </RootStack.Navigator>
         </NavigationContainer>
       </UidContext.Provider>

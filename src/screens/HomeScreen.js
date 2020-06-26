@@ -1,36 +1,71 @@
-import React from 'react';
+import React,{useCallback,useState} from 'react';
 import {
   StyleSheet, 
   View, 
   Text,
+  Image,
+  ScrollView,
+  FlatList,
+  ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
+import firestore from '@react-native-firebase/firestore';
+import { useFocusEffect } from '@react-navigation/native';
+import TList from '../elements/TList';
 
 function HomeScreen() {
-  function sleep(time){
-    new Promise((resolve)=> setTimeout(resolve, time));
-    // console.log('sleptLog', val);
-    }
-    
-    async function sleptLog(val){
-      sleep(10000);
-      console.log('sleptLog', val);
-    };
-    
-    const arr = [1, 2, 3,4,5,6,7,8,9,10];
-    
-    // async function testFunc(){
-    //   for(let item of arr) await sleep(item);
-    //   console.log('done!')
-    // };
-    
-    async function testFunc(){
-      await Promise.all(arr.map(async item => await sleptLog(item)))
-      console.log('done!')
-    };
+  const [loading, setLoading] = useState(true);
+  const [ninkiList,setNinkiList]=useState([]);
+  useFocusEffect(
+    useCallback(()=>{
+      let nickname,img,college,major;
+      firestore()
+      .collection('public')
+      .doc('v1')
+      .collection('user')
+      .orderBy('createdAt', 'desc')
+      .onSnapshot((querySnapshot)=>{
+        const tempList=[];
+        querySnapshot.forEach((doc)=>{
+          nickname=doc.get('nickname')
+          grade=doc.get('grade')
+          college=doc.get('college')
+          major=doc.get('major')
+          {doc.get('img') == null?(
+            img=require('../images/Q-LINE-icon.png')
+          ):(
+            img={uri:doc.get('img')}
+          )}
+          tempList.push({
+            ...doc.data(),
+            uid:doc.get('uid'),
+            uname:nickname,
+            uimg:img,
+            id: doc.id,
+          })
+        })
+        setNinkiList(tempList);
+        setLoading(false);
+      })
+    },[]),
+  )
+  if (loading) {
+    return <ActivityIndicator />
+  }
   return (
-    <View style={styles.container}>
-      <Text style={styles.title} onPress={()=>testFunc()}>HOME</Text>
-    </View>
+    <ScrollView nestedScrollEnabled>
+      <View style={styles.container}>
+        <View style={styles.space}/>
+        <Text style={styles.section}>人気講師</Text>
+        <FlatList
+          horizontal
+          data={ninkiList}
+          keyExtractor={(item) => item.id}
+          renderItem={({item}) => <TList {...item} />}
+        />
+        <Text style={styles.title}>HOME</Text>
+      </View>
+    </ScrollView>
   );
 }
 
@@ -38,7 +73,16 @@ const styles = StyleSheet.create({
   container:{
     flex:1,
     justifyContent:'center',
-    // alignItems:'center',
+    width:'100%',
+  },
+  space:{
+    width:'100%',
+    height:50,
+    backgroundColor:'#00f',
+  },
+  section:{
+    fontSize:17,
+    fontWeight:'bold',
   },
   title: {
     fontSize: 28,

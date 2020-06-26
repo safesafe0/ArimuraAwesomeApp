@@ -13,19 +13,20 @@ import {
   ScrollView,
 } from 'react-native';
 import {CheckBox, Body, ListItem} from 'native-base';
-import {GradeItem} from '../elements/PickerItem';
+import {TGradeItem} from '../elements/PickerItem';
 import auth from '@react-native-firebase/auth';
 import {AuthContext} from '../components/Context';
 import firestore from '@react-native-firebase/firestore';
 
-function SignupScreen({navigation}) {
-  // const [uid,setUid]=useState('');
+function TSignupScreen({navigation}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
   const [grade, setGrade] = useState('');
+  const [university, setUniversity] = useState('');
+  const [major,setMajor] = useState('');
+  const [course,setCourse] = useState('');
   const {signedIn} = useContext(AuthContext);
-  const [firstSchool, setFirstSchool] = useState('');
   const [check, setCheck] = useState(false);
   function updateGrade(state) {
     setGrade(state);
@@ -39,8 +40,11 @@ function SignupScreen({navigation}) {
       .set({
         nickname: nickname,
         grade: grade,
-        firstSchool: firstSchool,
+        university: university,
+        major:major,
+        course:course,
         createdAt: new Date(),
+        ts:'s',
       })
       .then(() => {
         signedIn(user);
@@ -74,7 +78,7 @@ function SignupScreen({navigation}) {
               style={styles.logo}
               source={require('../images/Q-LINE-icon.png')}
             />
-            <Text style={styles.title}>メンバー登録</Text>
+            <Text style={styles.title}>先生として登録</Text>
             <TextInput
               style={styles.input}
               value={nickname}
@@ -94,12 +98,24 @@ function SignupScreen({navigation}) {
               onChangeText={setPassword}
               secureTextEntry
             />
-            <GradeItem updateGrade={updateGrade} />
+            <TGradeItem updateGrade={updateGrade} />
             <TextInput
               style={styles.input}
-              value={firstSchool}
-              placeholder="志望校"
-              onChangeText={setFirstSchool}
+              value={university}
+              placeholder="大学名"
+              onChangeText={setUniversity}
+            />
+            <TextInput
+              style={styles.input}
+              value={major}
+              placeholder="学部名"
+              onChangeText={setMajor}
+            />
+            <TextInput
+              style={styles.input}
+              value={course}
+              placeholder="学科名"
+              onChangeText={setCourse}
             />
             <ListItem>
               <CheckBox checked={check} onPress={() => setCheck(!check)} />
@@ -189,4 +205,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignupScreen;
+export default TSignupScreen;

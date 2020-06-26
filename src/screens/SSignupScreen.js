@@ -19,7 +19,6 @@ import {AuthContext} from '../components/Context';
 import firestore from '@react-native-firebase/firestore';
 
 function SignupScreen({navigation}) {
-  // const [uid,setUid]=useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
@@ -41,6 +40,7 @@ function SignupScreen({navigation}) {
         grade: grade,
         firstSchool: firstSchool,
         createdAt: new Date(),
+        ts:'s',
       })
       .then(() => {
         signedIn(user);

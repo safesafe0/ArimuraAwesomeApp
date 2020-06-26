@@ -17,7 +17,7 @@ function TimeLineScreen({navigation}) {
         .onSnapshot(async (querySnapshot) => {
           const postList = [];
           for(let doc of querySnapshot.docs){
-            await getPost(postList,doc)}
+            getPost(postList,doc)}
           setPostList(postList);
           setLoading(false);
         });
