@@ -1,34 +1,38 @@
-import React,{useState,useCallback,useLayoutEffect} from 'react';
-import { 
+import React,{ useCallback ,useReducer } from 'react';
+import {
   StyleSheet,
   View,
   Text,
-  Image,
-  ScrollView,
   TouchableOpacity,
   FlatList,
   ActivityIndicator
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
-import {useFocusEffect} from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Reply from '../elements/Reply';
-import Detail from '../elements/Detail';
+import Reply from '../../elements/Reply';
+import Detail from '../../elements/Detail';
 
 function DetailScreen({route}){
   const navigation = useNavigation();
   const {item}=route.params;
-  const [postList, setPostList] = useState([]);
-  const [loading, setLoading] = useState(true);
-  function dateString(date){
-    if (date == null) { return ''; }
-    const dateObject = date.toDate();
-    return dateObject.toISOString().split('T')[0];
-  };
+  const [state, dispatch] = useReducer(
+    (prevState,action) => {
+      return {
+        ...prevState,
+        postList: action.postList,
+        loading: false,
+      }
+    },
+    {
+      postList:[],
+      loading:true,
+    },
+  );
   useFocusEffect(
     useCallback(() => {
-      firestore()
+      const subscriber=firestore()
       .collection('public')
       .doc('v1')
       .collection('users')
@@ -40,9 +44,9 @@ function DetailScreen({route}){
       .onSnapshot(async(querySnapshot) => {
         let tempList = [];
         await Promise.all(querySnapshot.docs.map(async doc => await getUser(doc,tempList)));
-        setPostList(tempList);
-        setLoading(false);
+        dispatch({postList: tempList});
       });
+      return ()=>subscriber();
     }, []),
   );
   async function getUser(doc,tempList) {
@@ -63,23 +67,18 @@ function DetailScreen({route}){
       id: doc.id,
     })
   }
-  if (loading) {
+  if (state.loading) {
     console.log('b')
     return <ActivityIndicator />
   }
   return (
-    <View>
-      <ScrollView nestedScrollEnabled>
-        <View style={{flex:1,paddingBottom:60}}>
-          <Detail {...item}/>
-          <FlatList
-          data={postList}
-          keyExtractor={(item) => item.id}
-          renderItem={({item}) => <Reply {...item} />}
-          nestedScrollEnabled
-          />
-        </View>
-      </ScrollView>
+    <View style={{flex:1,paddingBottom:60}}>
+      <FlatList
+      data={state.postList}
+      keyExtractor={(item) => item.id}
+      renderItem={({item}) => <Reply {...item} />}
+      ListHeaderComponent={<Detail {...item}/>}
+      />
       <TouchableOpacity
       style={styles.tab}
       onPress={()=>{navigation.navigate('Reply',{item:item})}}>
@@ -95,15 +94,6 @@ function DetailScreen({route}){
         </View>
       </TouchableOpacity>
     </View>
-      // {postList.map((item)=>{
-      //   console.log('a')
-      //   console.log(item)
-      //   return (
-      //     <View key={item.id}>
-      //       <Reply {...item}/>
-      //     </View>
-      //   )
-      // })}
   );
 }
 

@@ -8,105 +8,154 @@ import {createStackNavigator} from '@react-navigation/stack';
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
+import useBeforeFirstRender from './src/components/useBeforeFirstRender';
 import {AuthContext, UidContext} from './src/components/Context';
 import LoginScreen from './src/screens/LoginScreen';
 import SignupScreen from './src/screens/SignupScreen';
 import SigninScreen from './src/screens/SigninScreen';
-import MypageScreen from './src/screens/MypageScreen';
-import SettingScreen from './src/screens/SettingScreen';
-import HomeScreen from './src/screens/HomeScreen';
-import TimeLineScreen from './src/screens/TimeLineScreen';
-import PostScreen from './src/screens/PostScreen';
-import DetailScreen from './src/screens/DetailScreen';
-import ReplyScreen from './src/screens/ReplyScreen';
-import TSignupScreen from './src/screens/TSignupScreen';
-import SSignupScreen from './src/screens/SSignupScreen';
+import TimeLineScreen from './src/screens/MutualScreens/TimeLineScreen';
+import NotificationScreen from './src/screens/MutualScreens/NotificationScreen';
+import PostScreen from './src/screens/MutualScreens/PostScreen';
+import DetailScreen from './src/screens/MutualScreens/DetailScreen';
+import ReplyScreen from './src/screens/MutualScreens/ReplyScreen';
+import TSignupScreen from './src/screens/TeacherScreens/TSignupScreen';
+import SSignupScreen from './src/screens/StudentScreens/SSignupScreen';
+import THomeScreen from './src/screens/TeacherScreens/THomeScreen';
+import SHomeScreen from './src/screens/StudentScreens/SHomeScreen';
+import TMypageScreen from './src/screens/TeacherScreens/TMypageScreen';
+import SMypageScreen from './src/screens/StudentScreens/SMypageScreen';
+import TSettingScreen from './src/screens/TeacherScreens/TSettingScreen';
+import SSettingScreen from './src/screens/StudentScreens/SSettingScreen';
 
 const App: () => React$Node = () => {
   const Tab = createMaterialBottomTabNavigator();
   const HomeStack = createStackNavigator();
   const TimeLineStack = createStackNavigator();
+  const NotificationStack = createStackNavigator();
   const SigninStack = createStackNavigator();
   const RootStack = createStackNavigator();
   const [state, dispatch] = useReducer(
-    (prevState, action) => {
+    (prevState,action) => {
       switch (action.type) {
         case 'RESTORE_TOKEN':
           return {
             ...prevState,
             uid: action.uid,
-            displayName: action.name,
-            URL: action.photoURL,
-            tors: action.ts,
+            nickname: action.nickname,
+            img: action.img,
+            header: action.header,
+            bio: action.bio,
+            grade: action.grade,
+            tors: action.tors,
+            firstSchool: action.firstSchool,
+            university: action.university,
+            major: action.major,
+            course: action.course,
+            isSignout:false,
           };
+        case 'UPDATE_TOKEN':
+          return {
+            ...prevState
+          }
         case 'SIGN_IN':
           return {
             ...prevState,
-            uid: action.uid,
-            displayName: action.name,
-            URL: action.photoURL,
-            tors:action.ts,
+            isSignout: false,
           };
         case 'SIGN_OUT':
           return {
             ...prevState,
-            uid: '',
-            displayName:'',
-            URL:'',
-            ts:'s',
+            isSignout: true,
           };
       }
     },
     {
-      uid: '',
-      displayName: '',
-      URL: '',
-      tors:'',
+      uid: null,
+      nickname: '',
+      img: null,
+      header: null,
+      bio: '',
+      grade: '',
+      tors: 's',
+      firstSchool: '',
+      university: '',
+      major: '',
+      course: '',
+      isSignout: true,
     },
   );
-  useEffect(() => {
+  function getUser() {
     const user = auth().currentUser;
-    let userToken;
-    let name;
-    let photoURL;
-    let ts;
+    console.log(user);
     if (user) {
-      async function tscheck(){
-        let check=await firestore().collection('public').doc('v1').collection('users').doc(user.uid).get();
-        return check;
-      }
-      ts=tscheck.get('ts');
-      userToken = user.uid;
-      name = user.displayName;
-      photoURL = user.photoURL;
-      console.log(userToken);
+      firestore().collection('public').doc('v1').collection('users').doc(user.uid).onSnapshot((doc)=>{
+        let nickname=doc.get('nickname')
+        let img=doc.get('img')
+        if(img){}else{img=(require('./src/images/Q-LINE-icon.png'))}
+        let header=doc.get('header')
+        if(header){}else{header=(require('./src/images/header.png'))}
+        let bio=doc.get('bio')
+        let grade=doc.get('grade')
+        let tors=doc.get('tors')
+        console.log(tors)
+        switch(tors) {
+          case 't': {
+            let university=doc.get('university')
+            let major=doc.get('major')
+            let course=doc.get('course')
+            dispatch({
+              type: 'RESTORE_TOKEN',
+              uid: user.uid,
+              nickname: nickname,
+              img: img,
+              header: header,
+              bio: bio,
+              grade: grade,
+              tors: tors,
+              firstSchool:'',
+              university: university,
+              major: major,
+              course: course,
+            })
+          }
+          case 's':{
+            let firstSchool=doc.get('firstSchool')
+            dispatch({
+              type: 'RESTORE_TOKEN',
+              uid: user.uid,
+              nickname: nickname,
+              img: img,
+              header: header,
+              bio: bio,
+              grade: grade,
+              tors: tors,
+              firstSchool:firstSchool,
+              university: '',
+              major: '',
+              course: '',
+          })
+          }
+        }
+      })
     } else {
       console.log('user is not logined!');
-      userToken = '';
-      name = '';
-      photoURL = '';
-      ts='s';
     }
-    dispatch({
-      type: 'RESTORE_TOKEN',
-      uid: userToken,
-      displayName: name,
-      URL: photoURL,
-      ts:ts,
-    });
-  }, []);
-
-  const authContext = useMemo(
-    () => ({
-      signedIn: (userToken,ts) => dispatch({type: 'SIGN_IN', uid: userToken.uid,name:userToken.displayname,URL:userToken.photoURL,tors:ts,}),
-      signedOut: () => dispatch({type: 'SIGN_OUT'}),
-    }),
-    [],
+  };
+  useBeforeFirstRender(()=>getUser());
+  const authContext = useMemo(() => ({
+    signin: () => dispatch({type: 'SIGN_IN'}),
+    signout: () => dispatch({type: 'SIGN_OUT'}),
+    update: ()=> dispatch({type: 'UPDATE_TOKEN'}),
+    }),[],
   );
   function HomeStackScreen() {
     return (
       <HomeStack.Navigator>
-        <HomeStack.Screen name="Home" component={HomeScreen} />
+        {state.tors==='s'?(
+          <HomeStack.Screen name="Home" component={SHomeScreen} />
+        ):(
+          <HomeStack.Screen name="Home" component={THomeScreen} />
+        )}
       </HomeStack.Navigator>
     );
   }
@@ -117,10 +166,17 @@ const App: () => React$Node = () => {
       </TimeLineStack.Navigator>
     );
   }
+  function NotificationStackScreen() {
+    return (
+      <NotificationStack.Navigator>
+        <NotificationStack.Screen name="Notification" component={NotificationScreen} />
+      </NotificationStack.Navigator>
+    );
+  }
   function SigninStackScreen() {
     return (
       <SigninStack.Navigator>
-        {state.uid === '' ? (
+        {state.uid === null ? (
           <>
             <SigninStack.Screen name="Signin" component={SigninScreen} />
             <SigninStack.Screen name="Login" component={LoginScreen} />
@@ -128,8 +184,15 @@ const App: () => React$Node = () => {
           </>
         ) : (
           <>
-            <SigninStack.Screen name="Mypage" component={MypageScreen}/>
-            <SigninStack.Screen name="Setting" component={SettingScreen}options={{headerTitle:'登録情報の更新'}}/>
+          {state.tors==='s'?(
+          <>
+            <SigninStack.Screen name="Mypage" component={SMypageScreen}/>
+          </>
+          ):(
+            <>
+              <SigninStack.Screen name="Mypage" component={TMypageScreen}/>
+            </>
+          )}
           </>
         )}
       </SigninStack.Navigator>
@@ -143,6 +206,7 @@ const App: () => React$Node = () => {
             const icons = {
               Home: 'home',
               TimeLine: 'twitter',
+              Notification: 'bell',
               Signin: 'account',
             };
             return (
@@ -157,6 +221,7 @@ const App: () => React$Node = () => {
         shifting={true}>
         <Tab.Screen name="Home" component={HomeStackScreen} />
         <Tab.Screen name="TimeLine" component={TimeLineStackScreen} />
+        <Tab.Screen name="Notification" component={NotificationStackScreen} />
         <Tab.Screen name="Signin" component={SigninStackScreen} />
       </Tab.Navigator>
     );
@@ -176,6 +241,8 @@ const App: () => React$Node = () => {
             <RootStack.Screen name="Reply" component={ReplyScreen} />
             <RootStack.Screen name="TSignup" component={TSignupScreen} />
             <RootStack.Screen name="SSignup" component={SSignupScreen} />
+            <SigninStack.Screen name="SSetting" component={SSettingScreen}options={{headerTitle:'登録情報の更新'}}/>
+            <SigninStack.Screen name="TSetting" component={TSettingScreen}options={{headerTitle:'登録情報の更新'}}/>
           </RootStack.Navigator>
         </NavigationContainer>
       </UidContext.Provider>

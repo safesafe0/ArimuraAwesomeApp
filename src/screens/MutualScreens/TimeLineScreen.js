@@ -1,25 +1,36 @@
-import React, {useState, useCallback} from 'react';
+import React, { useCallback , useReducer } from 'react';
 import {FlatList, StyleSheet, View, ActivityIndicator} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
-import {UidContext} from '../components/Context';
-import Post from '../elements/Post';
-import CircleButton from '../elements/CircleButton';
+import {UidContext} from '../../components/Context';
+import Post from '../../elements/Post';
+import CircleButton from '../../elements/CircleButton';
 
 function TimeLineScreen({navigation}) {
-  const [postList, setPostList] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [thisState, dispatch] = useReducer(
+    (prevState,action) => {
+      return {
+        ...prevState,
+        postList: action.postList,
+        loading: false,
+      }
+    },
+    {
+      postList:[],
+      loading:true,
+    },
+  );
   useFocusEffect(
     useCallback(() => {
       firestore()
         .collectionGroup('posts')
         .orderBy('createdAt', 'desc')
-        .onSnapshot(async (querySnapshot) => {
-          const postList = [];
+        .onSnapshot((querySnapshot) => {
+          let tempList = [];
           for(let doc of querySnapshot.docs){
-            getPost(postList,doc)}
-          setPostList(postList);
-          setLoading(false);
+            getPost(tempList,doc)
+          }
+          dispatch({postList: tempList});
         });
     }, []),
   );
@@ -30,14 +41,14 @@ function TimeLineScreen({navigation}) {
         : navigation.navigate('Post', uid);
     }
   }
-  function getPost(postList,doc) {
+  function getPost(tempList,doc) {
     firestore()
       .collection('public')
       .doc('v1')
       .collection('users')
       .doc(doc.get('uid'))
       .onSnapshot((documentSnapshot) => {
-        postList.push({
+        tempList.push({
           ...doc.data(),
           uid:doc.get('uid'),
           uname:documentSnapshot.get('nickname'),
@@ -46,7 +57,7 @@ function TimeLineScreen({navigation}) {
         })
       });
   }
-  if (loading) {
+  if (thisState.loading) {
     return <ActivityIndicator />
   }
   return (
@@ -54,7 +65,7 @@ function TimeLineScreen({navigation}) {
       {(state) => (
         <View style={styles.container}>
           <FlatList
-            data={postList}
+            data={thisState.postList}
             keyExtractor={(item) => item.id}
             renderItem={({item}) => <Post {...item} />}
           />
@@ -73,7 +84,7 @@ function TimeLineScreen({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: '100%',
+    backgroundColor:'#fff',
   },
 });
 export default TimeLineScreen;

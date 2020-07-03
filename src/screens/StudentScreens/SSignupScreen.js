@@ -13,24 +13,20 @@ import {
   ScrollView,
 } from 'react-native';
 import {CheckBox, Body, ListItem} from 'native-base';
-import {TGradeItem} from '../elements/PickerItem';
+import {GradeItem} from '../../elements/PickerItem';
 import auth from '@react-native-firebase/auth';
-import {AuthContext} from '../components/Context';
+import {AuthContext} from '../../components/Context';
 import firestore from '@react-native-firebase/firestore';
 
-function TSignupScreen({navigation}) {
+function SignupScreen({navigation}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
   const [grade, setGrade] = useState('');
-  const [university, setUniversity] = useState('');
-  const [major,setMajor] = useState('');
-  const [course,setCourse] = useState('');
-  const {signedIn} = useContext(AuthContext);
+  const {signin} = useContext(AuthContext);
+  const [firstSchool, setFirstSchool] = useState('');
   const [check, setCheck] = useState(false);
-  function updateGrade(state) {
-    setGrade(state);
-  }
+  function updateGrade(state) {setGrade(state)}
   function register(user) {
     firestore()
       .collection('public')
@@ -40,14 +36,13 @@ function TSignupScreen({navigation}) {
       .set({
         nickname: nickname,
         grade: grade,
-        university: university,
-        major:major,
-        course:course,
+        firstSchool: firstSchool,
         createdAt: new Date(),
-        ts:'s',
+        tors:'s',
+        bio:'よろしくお願いします！',
       })
       .then(() => {
-        signedIn(user);
+        signin();
         alert('ユーザー登録が完了しました!');
       })
       .catch(function (error) {
@@ -76,9 +71,9 @@ function TSignupScreen({navigation}) {
           <View style={styles.container}>
             <Image
               style={styles.logo}
-              source={require('../images/Q-LINE-icon.png')}
+              source={require('../../images/Q-LINE-icon.png')}
             />
-            <Text style={styles.title}>先生として登録</Text>
+            <Text style={styles.title}>メンバー登録</Text>
             <TextInput
               style={styles.input}
               value={nickname}
@@ -98,24 +93,12 @@ function TSignupScreen({navigation}) {
               onChangeText={setPassword}
               secureTextEntry
             />
-            <TGradeItem updateGrade={updateGrade} />
+            <GradeItem updateGrade={updateGrade} />
             <TextInput
               style={styles.input}
-              value={university}
-              placeholder="大学名"
-              onChangeText={setUniversity}
-            />
-            <TextInput
-              style={styles.input}
-              value={major}
-              placeholder="学部名"
-              onChangeText={setMajor}
-            />
-            <TextInput
-              style={styles.input}
-              value={course}
-              placeholder="学科名"
-              onChangeText={setCourse}
+              value={firstSchool}
+              placeholder="志望校"
+              onChangeText={setFirstSchool}
             />
             <ListItem>
               <CheckBox checked={check} onPress={() => setCheck(!check)} />
@@ -205,4 +188,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TSignupScreen;
+export default SignupScreen;

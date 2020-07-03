@@ -24,7 +24,7 @@ function SignupScreen({navigation}) {
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
   const [grade, setGrade] = useState('');
-  const {signedIn} = useContext(AuthContext);
+  const {signin} = useContext(AuthContext);
   const [firstSchool, setFirstSchool] = useState('');
   const [check, setCheck] = useState(false);
   function updateGrade(state) {
@@ -43,7 +43,7 @@ function SignupScreen({navigation}) {
         createdAt: new Date(),
       })
       .then(() => {
-        signedIn(user);
+        signin();
         alert('ユーザー登録が完了しました!');
       })
       .catch(function (error) {

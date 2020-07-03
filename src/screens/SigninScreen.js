@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useContext} from 'react';
 import {
   StyleSheet,
   View,
@@ -8,12 +8,15 @@ import {
   Button,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
-
-function signOut() {
-  auth().signOut();
-  console.log('User LogOut!');
-}
+import {AuthContext} from '../components/Context';
 function SigninScreen({navigation}) {
+  const {signout} = useContext(AuthContext);
+  
+  function signOut() {
+    auth().signOut();
+    signout();
+    console.log('User LogOut!');
+  }
   return (
     <View style={styles.container}>
       <Image style={styles.logo} source={require('../images/Q-LINE.png')} />
@@ -51,7 +54,7 @@ function SigninScreen({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: '100%',
+    backgroundColor:'#fff',
   },
   logo: {
     justifyContent: 'center',

@@ -11,9 +11,9 @@ import {
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import { useFocusEffect } from '@react-navigation/native';
-import TList from '../elements/TList';
+import TList from '../../elements/TList';
 
-function HomeScreen() {
+function THomeScreen() {
   const [loading, setLoading] = useState(true);
   const [ninkiList,setNinkiList]=useState([]);
   useFocusEffect(
@@ -32,7 +32,7 @@ function HomeScreen() {
           // college=doc.get('college')
           // major=doc.get('major')
           {doc.get('img') == null?(
-            img=require('../images/Q-LINE-icon.png')
+            img=require('../../images/Q-LINE-icon.png')
           ):(
             img={uri:doc.get('img')}
           )}
@@ -57,6 +57,7 @@ function HomeScreen() {
       <ScrollView nestedScrollEnabled>
         <View style={styles.container}>
           <View style={styles.space}/>
+          <Text>講師だよ</Text>
           <View style={styles.section}>
             <Text style={styles.caption}>新着講師</Text>
             <FlatList
@@ -119,4 +120,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+export default THomeScreen;

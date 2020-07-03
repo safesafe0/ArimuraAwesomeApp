@@ -25,11 +25,11 @@ function MypageScreen({navigation}) {
   const [firstSchool,setFirstSchool]=useState(null);
   const [postList, setPostList] = useState([]);
   const [loading, setLoading] = useState(true);
-  const {signedOut} = useContext(AuthContext);
+  const {signout} = useContext(AuthContext);
   const {uid}=useContext(UidContext);
   function signOut() {
     auth().signOut();
-    signedOut();
+    signout();
     console.log('User LogOut!');
   }
   useLayoutEffect(() => {

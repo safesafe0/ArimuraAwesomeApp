@@ -1,4 +1,4 @@
-import React,{useCallback,useState} from 'react';
+import React,{ useCallback , useReducer } from 'react';
 import {
   StyleSheet, 
   View, 
@@ -11,28 +11,38 @@ import {
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import { useFocusEffect } from '@react-navigation/native';
-import TList from '../elements/TList';
+import TList from '../../elements/TList';
 
-function HomeScreen() {
-  const [loading, setLoading] = useState(true);
-  const [ninkiList,setNinkiList]=useState([]);
+function SHomeScreen() {
+  const [thisState, dispatch] = useReducer(
+    (prevState,action) => {
+      return {
+        ninkiList: action.ninkiList,
+        loading: false,
+      }
+    },
+    {
+      ninkiList:[],
+      loading:true,
+    },
+  );
   useFocusEffect(
     useCallback(()=>{
       let nickname,img,college,major;
-      firestore()
+      const subscriber=firestore()
       .collection('public')
       .doc('v1')
       .collection('users')
       .orderBy('createdAt', 'desc')
       .onSnapshot((querySnapshot)=>{
-        const tempList=[];
+        let tempList=[];
         querySnapshot.forEach((doc)=>{
           nickname=doc.get('nickname')
           // grade=doc.get('grade')
           // college=doc.get('college')
           // major=doc.get('major')
-          {doc.get('img') == null?(
-            img=require('../images/Q-LINE-icon.png')
+          {doc.get('img') == null ?(
+            img=require('../../images/Q-LINE-icon.png')
           ):(
             img={uri:doc.get('img')}
           )}
@@ -44,12 +54,12 @@ function HomeScreen() {
             id: doc.id,
           })
         })
-        setNinkiList(tempList);
-        setLoading(false);
+        dispatch({ninkiList: tempList})
       })
+      return () => subscriber();
     },[]),
   )
-  if (loading) {
+  if (thisState.loading) {
     return <ActivityIndicator />
   }
   return (
@@ -57,12 +67,13 @@ function HomeScreen() {
       <ScrollView nestedScrollEnabled>
         <View style={styles.container}>
           <View style={styles.space}/>
+          <Text>生徒だよ</Text>
           <View style={styles.section}>
             <Text style={styles.caption}>新着講師</Text>
             <FlatList
               horizontal={true}
-              showsScrollIndicator={false}
-              data={ninkiList}
+              showsHorizontalScrollIndicator={false}
+              data={thisState.ninkiList}
               keyExtractor={(item) => item.id}
               renderItem={({item}) => <TList {...item} />}
             />
@@ -71,8 +82,8 @@ function HomeScreen() {
             <Text style={styles.caption}>人気講師</Text>
             <FlatList
               horizontal={true}
-              showsScrollIndicator={false}
-              data={ninkiList}
+              showsHorizontalScrollIndicator={false}
+              data={thisState.ninkiList}
               keyExtractor={(item) => item.id}
               renderItem={({item}) => <TList {...item} />}
             />
@@ -81,8 +92,8 @@ function HomeScreen() {
             <Text style={styles.caption}>人気講師</Text>
             <FlatList
               horizontal={true}
-              showsScrollIndicator={false}
-              data={ninkiList}
+              showsHorizontalScrollIndicator={false}
+              data={thisState.ninkiList}
               keyExtractor={(item) => item.id}
               renderItem={({item}) => <TList {...item} />}
             />
@@ -119,4 +130,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+export default SHomeScreen;

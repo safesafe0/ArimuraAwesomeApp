@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState,useContext } from 'react';
 import {
   Text,
   Image,
@@ -15,13 +15,14 @@ import {
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import ImagePicker from 'react-native-image-picker';
-import CircleButton from '../elements/CircleButton';
-import {Subject, Field} from '../elements/PickerItem';
-import {UidContext} from '../components/Context';
+import CircleButton from '../../elements/CircleButton';
+import {Subject, Field} from '../../elements/PickerItem';
+import {UidContext} from '../../components/Context';
 import firestore from '@react-native-firebase/firestore';
 import storage from '@react-native-firebase/storage';
 
 function PostScreen({navigation}) {
+  const {uid}=useContext(UidContext);
   const [subject, setSubject] = useState('');
   const [field, setField] = useState('');
   const [body, setBody] = useState('');
@@ -33,13 +34,8 @@ function PostScreen({navigation}) {
   const [image2, setImage2] = useState('');
   const [source2, setSource2] = useState('');
   const [loading, setLoading] = useState(false);
-
-  function updateSubject(state) {
-    setSubject(state);
-  }
-  function updateField(state) {
-    setField(state);
-  }
+  function updateSubject(state) {setSubject(state)}
+  function updateField(state) {setField(state)}
   function showPicker1() {
     let options = {
       title: '画像を選択',
@@ -80,7 +76,7 @@ function PostScreen({navigation}) {
       }
     });
   }
-  async function uploadImage1(image,uid,{navigation}) {
+  async function uploadImage1() {
     setLoading(true);
     if(image){
       const id=Math.random()*100000000000000000;
@@ -108,14 +104,14 @@ function PostScreen({navigation}) {
           alert('画像のURLの取得に失敗しました');
         })
         .then((downloadURL)=>{
-          uploadImage2(image2,downloadURL,uid,{navigation});
+          uploadImage2(downloadURL);
         });
       });
     } else {
-      uploadImage2(image2,downloadURL='',uid,{navigation});
+      uploadImage2(downloadURL=null);
     }
   }
-  async function uploadImage2(image,image1URL,uid,{navigation}) {
+  async function uploadImage2(image1URL) {
     if(image){
       const id=Math.random()*100000000000000000;
       const iid=Math.random()*100000000000000000;
@@ -142,14 +138,14 @@ function PostScreen({navigation}) {
           alert('画像のURLの取得に失敗しました');
         })
         .then((downloadURL)=>{
-          uploadPost(image1URL,downloadURL,uid,{navigation});
+          uploadPost(image1URL,downloadURL);
         });
       });
     } else {
-      uploadPost(image1URL,downloadURL='',uid,{navigation});
+      uploadPost(image1URL,downloadURL=null);
     }
   }
-  async function uploadPost(image1,image2,uid,{navigation}) {
+  async function uploadPost(image1,image2) {
     await firestore()
       .collection('public')
       .doc('v1')
@@ -183,97 +179,93 @@ function PostScreen({navigation}) {
     return <ActivityIndicator />
   }
   return (
-    <UidContext.Consumer>
-      {(state) => (
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : null}
-          style={{flex: 1}}>
-          <ScrollView>
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-              <View style={styles.container}>
-                <Text style={styles.notion}>残りの無料質問回数は3回です。</Text>
-                <View style={styles.component}>
-                  <Text style={styles.item}>科目</Text>
-                  <Subject updateSubject={updateSubject} />
-                </View>
-                <View style={styles.component}>
-                  <Text style={styles.item}>分野</Text>
-                  <Field subject={subject} updateField={updateField} />
-                </View>
-                <View style={styles.component}>
-                  <Text style={styles.item}>ハッシュタグ</Text>
-                  <TextInput
-                    style={styles.hashtag}
-                    value={hashtag}
-                    onChangeText={setHashtag}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : null}
+      style={{flex: 1}}>
+      <ScrollView>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.container}>
+            <Text style={styles.notion}>残りの無料質問回数は3回です。</Text>
+            <View style={styles.component}>
+              <Text style={styles.item}>科目</Text>
+              <Subject updateSubject={updateSubject} />
+            </View>
+            <View style={styles.component}>
+              <Text style={styles.item}>分野</Text>
+              <Field subject={subject} updateField={updateField} />
+            </View>
+            <View style={styles.component}>
+              <Text style={styles.item}>ハッシュタグ</Text>
+              <TextInput
+                style={styles.hashtag}
+                value={hashtag}
+                onChangeText={setHashtag}
+              />
+            </View>
+            <View style={styles.component}>
+              <Text style={styles.item}>問題の種類</Text>
+              <TextInput
+                style={styles.hashtag}
+                value={type}
+                onChangeText={setType}/>
+            </View>
+            <View style={styles.component}>
+              <Text style={styles.item}>参考書名</Text>
+              <TextInput
+                style={styles.hashtag}
+                value={bookName}
+                onChangeText={setBookName}
+              />
+            </View>
+            <Text style={styles.body}>わからない問題の画像</Text>
+            <TouchableHighlight
+              style={styles.button}
+              onPress={() => showPicker1()}
+              underlayColor="transparent">
+              {source1 ? (
+                <Image style={styles.image} source={{uri: source1}} />
+              ) : (
+                <View style={styles.wrapper}>
+                  <MaterialCommunityIcons
+                    style={styles.icon}
+                    name="image-filter"
                   />
                 </View>
-                <View style={styles.component}>
-                  <Text style={styles.item}>問題の種類</Text>
-                  <TextInput
-                    style={styles.hashtag}
-                    value={type}
-                    onChangeText={setType}/>
-                </View>
-                <View style={styles.component}>
-                  <Text style={styles.item}>参考書名</Text>
-                  <TextInput
-                    style={styles.hashtag}
-                    value={bookName}
-                    onChangeText={setBookName}
+              )}
+            </TouchableHighlight>
+            <Text style={styles.body}>
+              わからない部分の解答画像(答えがある場合)
+            </Text>
+            <TouchableHighlight
+              style={styles.button}
+              onPress={() => showPicker2()}
+              underlayColor="transparent">
+              {source2 ? (
+                <Image style={styles.image} source={{uri: source2}} />
+              ) : (
+                <View style={styles.wrapper}>
+                  <MaterialCommunityIcons
+                    style={styles.icon}
+                    name="image-filter"
                   />
                 </View>
-                <Text style={styles.body}>わからない問題の画像</Text>
-                <TouchableHighlight
-                  style={styles.button}
-                  onPress={() => showPicker1()}
-                  underlayColor="transparent">
-                  {source1 ? (
-                    <Image style={styles.image} source={{uri: source1}} />
-                  ) : (
-                    <View style={styles.wrapper}>
-                      <MaterialCommunityIcons
-                        style={styles.icon}
-                        name="image-filter"
-                      />
-                    </View>
-                  )}
-                </TouchableHighlight>
-                <Text style={styles.body}>
-                  わからない部分の解答画像(答えがある場合)
-                </Text>
-                <TouchableHighlight
-                  style={styles.button}
-                  onPress={() => showPicker2()}
-                  underlayColor="transparent">
-                  {source2 ? (
-                    <Image style={styles.image} source={{uri: source2}} />
-                  ) : (
-                    <View style={styles.wrapper}>
-                      <MaterialCommunityIcons
-                        style={styles.icon}
-                        name="image-filter"
-                      />
-                    </View>
-                  )}
-                </TouchableHighlight>
-                <Text style={styles.body}>どこがわからないのか</Text>
-                <TextInput
-                  style={styles.postInput}
-                  multiline
-                  value={body}
-                  onChangeText={setBody}
-                />
-                <CircleButton
-                  onPress={() => {uploadImage1(image1,state.uid,{navigation})}}>
-                  send
-                </CircleButton>
-              </View>
-            </TouchableWithoutFeedback>
-          </ScrollView>
-        </KeyboardAvoidingView>
-      )}
-    </UidContext.Consumer>
+              )}
+            </TouchableHighlight>
+            <Text style={styles.body}>どこがわからないのか</Text>
+            <TextInput
+              style={styles.postInput}
+              multiline
+              value={body}
+              onChangeText={setBody}
+            />
+            <CircleButton
+              onPress={() => {uploadImage1()}}>
+              send
+            </CircleButton>
+          </View>
+        </TouchableWithoutFeedback>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

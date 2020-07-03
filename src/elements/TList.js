@@ -8,43 +8,35 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-function TList(){
+function TList(props){
   return(
-    <TouchableOpacity
-    style={styles.postListItem}>
-      <View style={styles.wrapper}>
+    <View style={styles.wrapper}>
       <Image
       style={styles.avater}
-      source={props.img}/>
-      </View>
-    </TouchableOpacity>
+      source={props.uimg}/>
+      <Text style={styles.name}>{props.uname}</Text>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  postListItem: {
-    marginLeft:20,
-    marginRight:20,
+  wrapper:{
+    marginLeft:16,
+    marginRight:16,
     marginTop:10,
     marginBottom:5,
-    paddingLeft: 12,
-    paddingRight: 18,
-    paddingTop: 10,
-    paddingBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    backgroundColor: '#fff',
-  },
-  wrapper:{
-    flexDirection: 'row',
   },
   avater:{
-    width:50,
-    height:50,
+    width:48,
+    height:48,
     borderWidth:2,
     borderRadius:50,
     backgroundColor:'#fff',
     borderColor:'#fff',
+  },
+  name:{
+    fontSize:12,
+    alignSelf:'center',
   },
 });
 

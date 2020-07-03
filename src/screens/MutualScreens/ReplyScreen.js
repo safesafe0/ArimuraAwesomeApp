@@ -1,5 +1,5 @@
-import React,{useState} from 'react';
-import { 
+import React,{ useState } from 'react';
+import {
   StyleSheet,
   View,
   Text,
@@ -14,7 +14,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import ImagePicker from 'react-native-image-picker';
-import {UidContext} from '../components/Context';
+import {UidContext} from '../../components/Context';
 import firestore from '@react-native-firebase/firestore';
 import storage from '@react-native-firebase/storage';
 
@@ -50,7 +50,7 @@ function ReplyScreen({route}) {
       }
     });
   }
-  async function uploadImage(img,uid) {
+  function uploadImage(img,uid) {
     setLoading(true);
     if(img){
       const id=Math.random()*100000000000000000;
@@ -58,7 +58,7 @@ function ReplyScreen({route}) {
       const uuid=''+id+''+iid;
       const fileName=uuid+'.'+img.split('.').pop();
       console.log(fileName);
-      await storage()
+      storage()
       .ref('post')
       .child('img')
       .child(fileName)
@@ -67,8 +67,8 @@ function ReplyScreen({route}) {
         setLoading(false);
         alert('画像の保存に失敗しました');
       })
-      .then(async()=>{
-        await storage()
+      .then(()=>{
+        storage()
         .ref('post')
         .child('img')
         .child(fileName)
@@ -85,8 +85,8 @@ function ReplyScreen({route}) {
       uploadPost(downloadURL='',uid);
     }
   }
-  async function uploadPost(imgURL,uid) {
-    await firestore()
+  function uploadPost(imgURL,uid) {
+    firestore()
       .collection('public')
       .doc('v1')
       .collection('users')
@@ -98,6 +98,27 @@ function ReplyScreen({route}) {
         uid:uid,
         body:body,
         image:imgURL,
+        createdAt: new Date(),
+      })
+      .then(function (docRef) {
+        uploadNotion(uid)
+      })
+      .catch(function (error) {
+        setLoading(false);
+        console.log(error);
+      });
+  }
+  function uploadNotion(imgURL,uid){
+    firestore()
+      .collection('private')
+      .doc('v1')
+      .collection('users')
+      .doc(item.uid)
+      .collection('notifications')
+      .add({
+        postid:item.id,
+        uid:uid,
+        body:body,
         createdAt: new Date(),
       })
       .then(function (docRef) {
@@ -127,7 +148,7 @@ function ReplyScreen({route}) {
                       <Image
                       rounded
                       style={styles.avatar}
-                      source={require('../images/Q-LINE-icon.png')}/>
+                      source={require('../../images/Q-LINE-icon.png')}/>
                     ):(
                       <Image
                       rounded

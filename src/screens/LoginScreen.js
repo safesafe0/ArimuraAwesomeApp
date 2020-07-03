@@ -22,7 +22,7 @@ import {
 function LoginScreen({navigation}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const {signedIn} = useContext(AuthContext);
+  const {signin} = useContext(AuthContext);
 
   function login(email, password, {navigation}) {
     auth()
@@ -30,7 +30,7 @@ function LoginScreen({navigation}) {
       .then(function (User) {
         navigation.navigate('Home');
         alert('Login Success!');
-        signedIn(User.user);
+        signin();
         console.log(User.user.uid);
       })
       .catch(function (error) {

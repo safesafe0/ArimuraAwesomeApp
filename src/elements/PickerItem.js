@@ -4,7 +4,6 @@ import {
   StyleSheet,
 } from 'react-native'
 import {Picker} from 'native-base';
-import { Transitioning } from 'react-native-reanimated';
 
 function japaneseItem(props) {
   const [state,setState]=useState('');
