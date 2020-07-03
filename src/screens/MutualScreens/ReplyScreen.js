@@ -1,4 +1,4 @@
-import React,{ useState } from 'react';
+import React,{ useState,useContext } from 'react';
 import {
   StyleSheet,
   View,
@@ -19,11 +19,12 @@ import firestore from '@react-native-firebase/firestore';
 import storage from '@react-native-firebase/storage';
 
 function ReplyScreen({route}) {
+  const {uid}=useContext(UidContext);
   const navigation = useNavigation();
   const {item}=route.params;
-  const [body,setBody]=useState('');
-  const [img,setImg]=useState('');
-  const [source,setSource]=useState('');
+  const [body,setBody]=useState(null);
+  const [img,setImg]=useState(null);
+  const [source,setSource]=useState(null);
   const [loading, setLoading] = useState(false);
   const dateString = (date) => {
     if (date == null) { return ''; }
@@ -50,7 +51,7 @@ function ReplyScreen({route}) {
       }
     });
   }
-  function uploadImage(img,uid) {
+  function uploadImage() {
     setLoading(true);
     if(img){
       const id=Math.random()*100000000000000000;
@@ -78,14 +79,14 @@ function ReplyScreen({route}) {
           alert('画像のURLの取得に失敗しました');
         })
         .then((downloadURL)=>{
-          uploadPost(downloadURL,uid);
+          uploadReply(downloadURL);
         });
       });
     } else {
-      uploadPost(downloadURL='',uid);
+      uploadReply(null);
     }
   }
-  function uploadPost(imgURL,uid) {
+  function uploadReply(imgURL) {
     firestore()
       .collection('public')
       .doc('v1')
@@ -100,32 +101,33 @@ function ReplyScreen({route}) {
         image:imgURL,
         createdAt: new Date(),
       })
-      .then(function (docRef) {
-        uploadNotion(uid)
+      .then(function (doc) {
+        uploadNotion(imgURL,doc)
       })
       .catch(function (error) {
         setLoading(false);
         console.log(error);
       });
   }
-  function uploadNotion(imgURL,uid){
+  function uploadNotion(imgURL,doc){
     firestore()
-      .collection('private')
+      .collection('public')
       .doc('v1')
       .collection('users')
       .doc(item.uid)
       .collection('notifications')
       .add({
         postid:item.id,
+        replyid:doc.id,
         uid:uid,
         body:body,
+        imgURL:imgURL,
         createdAt: new Date(),
       })
-      .then(function (docRef) {
-        setLoading(false);
-        console.log(docRef.id);
-        console.log('書き込みができました');
-        navigation.navigate('TimeLine');
+      .then(()=>{
+        setLoading(false)
+        alert('書き込みができました')
+        navigation.navigate('TimeLine')
       })
       .catch(function (error) {
         setLoading(false);
@@ -136,92 +138,81 @@ function ReplyScreen({route}) {
     return <ActivityIndicator />
   }
   return (
-    <UidContext.Consumer>
-      {(state) => (
-        <View style={styles.container}>
-          <ScrollView nestedScrollEnabled>
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-              <View>
-                <View style={styles.wrapper}>
-                  <View style={styles.left}>
-                    {item.img==null?(
-                      <Image
-                      rounded
-                      style={styles.avatar}
-                      source={require('../../images/Q-LINE-icon.png')}/>
-                    ):(
-                      <Image
-                      rounded
-                      style={styles.avatar}
-                      source={item.uimg}/>
-                    )}
-                  </View>
-                  <View style={styles.right}>
-                      <View style={styles.info}>
-                        <Text style={styles.name}>{item.uname}</Text>
-                        <Text style={styles.time}>{dateString(item.createdAt)}</Text>
-                      </View>
-                      <View style={{flexDirection:'row'}}>
-                        <View style={styles.bodyLeft}>
-                          <Text style={styles.body}>{item.body}</Text>
-                        </View>
-                        <View style={styles.bodyRight}>
-                        {item.image1==null&&item.image2==null?(
-                            <></>
-                          ):(
-                            <View style={styles.imagewrapper}>
-                              {item.image2?(
-                                <Image style={styles.image} source={{uri:item.image1}}/>
-                              ):(<></>)}
-                              {item.image1?(
-                                <Image style={styles.image} source={{uri:item.image2}}/>
-                              ):(<></>)}
-                            </View>
-                          )}
-                        </View>
-                      </View>
-                      <Text style={styles.answered}>未回答</Text>
-                    </View>
-                </View>
-                <TextInput
-                  style={styles.postInput}
-                  multiline
-                  placeholder='ここに回答をしてくれい'
-                  value={body}
-                  onChangeText={setBody}
-                />
-                {source==''?(
-                  <></>
-                ):(
-                  <Image style={styles.postImage} source={{uri:source}}/>
-                )}
+    <View style={styles.container}>
+      <ScrollView nestedScrollEnabled>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View>
+            <View style={styles.wrapper}>
+              <View style={styles.left}>
+                <Image
+                rounded
+                style={styles.avatar}
+                source={item.uimg}/>
               </View>
-            </TouchableWithoutFeedback>
-          </ScrollView>
-          <View style={styles.tab}>
-            <TouchableOpacity 
-            style={styles.tabLeft}
-            onPress={()=>{showPicker()}}>
-              <MaterialCommunityIcons
-              style={styles.icon}
-              name={'camera'}
-              size={37}/>
-            </TouchableOpacity>
-            <View style={styles.tabCenter}>
-              <Text style={styles.tabText}>回答を送信する</Text>
+              <View style={styles.right}>
+                  <View style={styles.info}>
+                    <Text style={styles.name}>{item.uname}</Text>
+                    <Text style={styles.time}>{dateString(item.createdAt)}</Text>
+                  </View>
+                  <View style={{flexDirection:'row'}}>
+                    <View style={styles.bodyLeft}>
+                      <Text style={styles.body}>{item.body}</Text>
+                    </View>
+                    <View style={styles.bodyRight}>
+                    {item.image1==null&&item.image2==null?(
+                        <></>
+                      ):(
+                        <View style={styles.imagewrapper}>
+                          {item.image2?(
+                            <Image style={styles.image} source={{uri:item.image1}}/>
+                          ):(<></>)}
+                          {item.image1?(
+                            <Image style={styles.image} source={{uri:item.image2}}/>
+                          ):(<></>)}
+                        </View>
+                      )}
+                    </View>
+                  </View>
+                  <Text style={styles.answered}>未回答</Text>
+                </View>
             </View>
-            <TouchableOpacity
-            style={styles.tabRight}
-            onPress={()=>{uploadImage(img,state.uid)}}>
-              <MaterialCommunityIcons
-              style={styles.icon}
-              name={'send'}
-              size={37}/>
-            </TouchableOpacity>
+            <TextInput
+              style={styles.postInput}
+              multiline
+              placeholder='ここに回答をしてくれい'
+              value={body}
+              onChangeText={setBody}
+            />
+            {source==null?(
+              <></>
+            ):(
+              <Image style={styles.postImage} source={{uri:source}}/>
+            )}
           </View>
+        </TouchableWithoutFeedback>
+      </ScrollView>
+      <View style={styles.tab}>
+        <TouchableOpacity 
+        style={styles.tabLeft}
+        onPress={()=>{showPicker()}}>
+          <MaterialCommunityIcons
+          style={styles.icon}
+          name={'camera'}
+          size={37}/>
+        </TouchableOpacity>
+        <View style={styles.tabCenter}>
+          <Text style={styles.tabText}>回答を送信する</Text>
         </View>
-      )}
-    </UidContext.Consumer>
+        <TouchableOpacity
+        style={styles.tabRight}
+        onPress={()=>{uploadImage()}}>
+          <MaterialCommunityIcons
+          style={styles.icon}
+          name={'send'}
+          size={37}/>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }
 

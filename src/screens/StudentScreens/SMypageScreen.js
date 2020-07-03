@@ -88,8 +88,8 @@ function SMypageScreen({navigation}) {
           renderItem={({item}) => <Post {...item} />}
           ListHeaderComponent={
             <View style={styles.container}>
-              <Image style={styles.header} source={{uri:state.header}}/>
-              <Image style={styles.avatar} source={{uri:state.img}}/>
+              <Image style={styles.header} source={state.header}/>
+              <Image style={styles.avatar} source={state.img}/>
               <Text style={styles.nickname}>{state.nickname}</Text>
               <Text style={styles.body}>{state.grade}</Text>
               <Text style={styles.body}>{state.firstSchool}志望</Text>

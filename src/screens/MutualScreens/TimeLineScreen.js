@@ -22,40 +22,46 @@ function TimeLineScreen({navigation}) {
   );
   useFocusEffect(
     useCallback(() => {
-      firestore()
-        .collectionGroup('posts')
-        .orderBy('createdAt', 'desc')
-        .onSnapshot((querySnapshot) => {
-          let tempList = [];
-          for(let doc of querySnapshot.docs){
-            getPost(tempList,doc)
-          }
-          dispatch({postList: tempList});
-        });
+      const subscriber=firestore()
+      .collectionGroup('posts')
+      .orderBy('createdAt', 'desc')
+      .onSnapshot(async(querySnapshot) => {
+        let tempList = [];
+        await Promise.all(querySnapshot.docs.map(async doc => await getUser(doc,tempList)));
+        dispatch({postList: tempList});
+      });
+      return ()=>subscriber();
     }, []),
   );
+  async function getUser(doc,tempList) {
+    let uid=doc.get('uid');
+    let documentSnapshot=await firestore()
+    .collection('public')
+    .doc('v1')
+    .collection('users')
+    .doc(uid)
+    .get();
+    let uname=documentSnapshot.get('nickname');
+    let uimg;
+    {documentSnapshot.get('img')==null?(
+      uimg=require('../../images/Q-LINE-icon.png')
+    ):(
+      uimg={uri:documentSnapshot.get('img')}
+    )}
+    tempList.push({
+      ...doc.data(),
+      uid:uid,
+      uname:uname,
+      uimg:uimg,
+      id: doc.id,
+    })
+  }
   function toggleButton(uid) {
     {
       uid === ''
         ? (navigation.navigate('Signin'), alert('Please Login!'))
         : navigation.navigate('Post', uid);
     }
-  }
-  function getPost(tempList,doc) {
-    firestore()
-      .collection('public')
-      .doc('v1')
-      .collection('users')
-      .doc(doc.get('uid'))
-      .onSnapshot((documentSnapshot) => {
-        tempList.push({
-          ...doc.data(),
-          uid:doc.get('uid'),
-          uname:documentSnapshot.get('nickname'),
-          uimg:documentSnapshot.get('img'),
-          id: doc.id,
-        })
-      });
   }
   if (thisState.loading) {
     return <ActivityIndicator />

@@ -23,16 +23,16 @@ import storage from '@react-native-firebase/storage';
 
 function PostScreen({navigation}) {
   const {uid}=useContext(UidContext);
-  const [subject, setSubject] = useState('');
-  const [field, setField] = useState('');
-  const [body, setBody] = useState('');
-  const [hashtag, setHashtag] = useState('');
-  const [type, setType] = useState('');
-  const [bookName, setBookName] = useState('');
-  const [image1, setImage1] = useState('');
-  const [source1, setSource1] = useState('');
-  const [image2, setImage2] = useState('');
-  const [source2, setSource2] = useState('');
+  const [subject, setSubject] = useState(null);
+  const [field, setField] = useState(null);
+  const [body, setBody] = useState(null);
+  const [hashtag, setHashtag] = useState(null);
+  const [type, setType] = useState(null);
+  const [bookName, setBookName] = useState(null);
+  const [image1, setImage1] = useState(null);
+  const [source1, setSource1] = useState(null);
+  const [image2, setImage2] = useState(null);
+  const [source2, setSource2] = useState(null);
   const [loading, setLoading] = useState(false);
   function updateSubject(state) {setSubject(state)}
   function updateField(state) {setField(state)}
@@ -78,17 +78,17 @@ function PostScreen({navigation}) {
   }
   async function uploadImage1() {
     setLoading(true);
-    if(image){
+    if(image1){
       const id=Math.random()*100000000000000000;
       const iid=Math.random()*100000000000000000;
       const uuid=''+id+''+iid;
-      const fileName=uuid+'.'+image.split('.').pop();
+      const fileName=uuid+'.'+image1.split('.').pop();
       console.log(fileName);
       await storage()
       .ref('post')
       .child('img')
       .child(fileName)
-      .putFile(image)
+      .putFile(image1)
       .catch(()=>{
         setLoading(false);
         alert('画像の保存に失敗しました');
@@ -108,21 +108,21 @@ function PostScreen({navigation}) {
         });
       });
     } else {
-      uploadImage2(downloadURL=null);
+      uploadImage2(null);
     }
   }
   async function uploadImage2(image1URL) {
-    if(image){
+    if(image2){
       const id=Math.random()*100000000000000000;
       const iid=Math.random()*100000000000000000;
       const uuid=''+id+''+iid;
-      const fileName=uuid+'.'+image.split('.').pop();
+      const fileName=uuid+'.'+image2.split('.').pop();
       console.log(fileName);
       await storage()
       .ref('post')
       .child('img')
       .child(fileName)
-      .putFile(image)
+      .putFile(image2)
       .catch(()=>{
         setLoading(false);
         alert('画像の保存に失敗しました');
@@ -142,7 +142,7 @@ function PostScreen({navigation}) {
         });
       });
     } else {
-      uploadPost(image1URL,downloadURL=null);
+      uploadPost(image1URL,null);
     }
   }
   async function uploadPost(image1,image2) {

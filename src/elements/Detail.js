@@ -15,28 +15,40 @@ function Detail (props){
   return (
     <View style={styles.wrapper}>
       <View style={styles.left}>
-        {props.img==null?(
-          <Image
-          rounded
-          style={styles.avatar}
-          source={require('../images/Q-LINE-icon.png')}/>
-        ):(
-          <Image
+      <Image
           rounded
           style={styles.avatar}
           source={props.uimg}/>
-        )}
       </View>
       <View style={styles.right}>
         <View style={styles.info}>
           <Text style={styles.name}>{props.uname}</Text>
           <Text style={styles.time}>{dateString(props.createdAt)}</Text>
         </View>
-        <Text style={styles.subject}>科目：{props.subject}　分野：{props.field}</Text>
+        <View style={{flexDirection: 'row'}}>
+          {props.subject==null?(
+            <></>
+          ):(
+            <Text style={styles.subject}>科目：{props.subject}　</Text>
+          )}
+          {props.field==null?(
+            <></>
+          ):(
+            <Text style={styles.subject}>分野：{props.field}</Text>
+          )}
+        </View>
         {/* <Text style={styles.category}>{props.hashtag}</Text> */}
         <View style={styles.div}>
-          <Text style={styles.category}>出典：{props.type}</Text>
-          <Text style={styles.category}>書名：{props.bookName}</Text>
+          {props.type==null?(
+            <></>
+          ):(
+            <Text style={styles.category}>出典：{props.type}</Text>
+          )}
+          {props.type==null?(
+            <></>
+          ):(
+            <Text style={styles.category}>書名：{props.bookName}</Text>
+          )}
         </View>
         <Text style={styles.body}>{props.body}</Text>
         {props.image1==null&&props.image2==null?(

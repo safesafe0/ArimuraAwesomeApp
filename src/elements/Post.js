@@ -22,7 +22,11 @@ function Post(props){
     >
       <View style={styles.wrapper}>
         <View style={styles.left}>
-          {props.img==null?(
+          <Image
+            rounded
+            style={styles.avatar}
+            source={props.uimg}/>
+          {/* {props.img==null?(
             <Image
             rounded
             style={styles.avatar}
@@ -32,7 +36,7 @@ function Post(props){
             rounded
             style={styles.avatar}
             source={props.uimg}/>
-          )}
+          )} */}
         </View>
         <View style={styles.right}>
           <View style={styles.info}>

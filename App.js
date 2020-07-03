@@ -2,7 +2,6 @@ import 'react-native-gesture-handler';
 import React, {useReducer, useMemo, useEffect} from 'react';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
-
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
@@ -10,9 +9,10 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 import useBeforeFirstRender from './src/components/useBeforeFirstRender';
 import {AuthContext, UidContext} from './src/components/Context';
-import LoginScreen from './src/screens/LoginScreen';
+
+import LoginScreen from './src/screens/MutualScreens/LoginScreen';
 import SignupScreen from './src/screens/SignupScreen';
-import SigninScreen from './src/screens/SigninScreen';
+import SigninScreen from './src/screens/MutualScreens/SigninScreen';
 import TimeLineScreen from './src/screens/MutualScreens/TimeLineScreen';
 import NotificationScreen from './src/screens/MutualScreens/NotificationScreen';
 import PostScreen from './src/screens/MutualScreens/PostScreen';
@@ -71,29 +71,30 @@ const App: () => React$Node = () => {
     },
     {
       uid: null,
-      nickname: '',
+      nickname: null,
       img: null,
       header: null,
-      bio: '',
-      grade: '',
+      bio: null,
+      grade: null,
       tors: 's',
-      firstSchool: '',
-      university: '',
-      major: '',
-      course: '',
+      firstSchool: null,
+      university: null,
+      major: null,
+      course: null,
       isSignout: true,
     },
   );
   function getUser() {
     const user = auth().currentUser;
-    console.log(user);
+    console.log(user.uid)
     if (user) {
       firestore().collection('public').doc('v1').collection('users').doc(user.uid).onSnapshot((doc)=>{
         let nickname=doc.get('nickname')
         let img=doc.get('img')
-        if(img){}else{img=(require('./src/images/Q-LINE-icon.png'))}
+        let uimg,uheader
+        if(img){uimg={uri:img}}else{uimg=(require('./src/images/Q-LINE-icon.png'))}
         let header=doc.get('header')
-        if(header){}else{header=(require('./src/images/header.png'))}
+        if(header){uheader={uri:header}}else{uheader=(require('./src/images/header.png'))}
         let bio=doc.get('bio')
         let grade=doc.get('grade')
         let tors=doc.get('tors')
@@ -107,8 +108,8 @@ const App: () => React$Node = () => {
               type: 'RESTORE_TOKEN',
               uid: user.uid,
               nickname: nickname,
-              img: img,
-              header: header,
+              img: uimg,
+              header: uheader,
               bio: bio,
               grade: grade,
               tors: tors,
@@ -124,8 +125,8 @@ const App: () => React$Node = () => {
               type: 'RESTORE_TOKEN',
               uid: user.uid,
               nickname: nickname,
-              img: img,
-              header: header,
+              img: uimg,
+              header: uheader,
               bio: bio,
               grade: grade,
               tors: tors,
@@ -138,6 +139,20 @@ const App: () => React$Node = () => {
         }
       })
     } else {
+      dispatch({
+        type: 'RESTORE_TOKEN',
+        uid: null,
+        nickname: null,
+        img: null,
+        header: null,
+        bio: null,
+        grade: null,
+        tors: 's',
+        firstSchool: null,
+        university: null,
+        major: null,
+        course: null,
+      })
       console.log('user is not logined!');
     }
   };

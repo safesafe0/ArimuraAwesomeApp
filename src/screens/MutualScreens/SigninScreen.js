@@ -8,7 +8,7 @@ import {
   Button,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
-import {AuthContext} from '../components/Context';
+import {AuthContext} from '../../components/Context';
 function SigninScreen({navigation}) {
   const {signout} = useContext(AuthContext);
   
@@ -19,7 +19,7 @@ function SigninScreen({navigation}) {
   }
   return (
     <View style={styles.container}>
-      <Image style={styles.logo} source={require('../images/Q-LINE.png')} />
+      <Image style={styles.logo} source={require('../../images/Q-LINE.png')} />
       <View style={styles.div}>
         <Text style={styles.text}>すぐに質問・すぐ解決</Text>
         <Text style={styles.text}>志望校の現役大学生にアドバイスを貰おう</Text>

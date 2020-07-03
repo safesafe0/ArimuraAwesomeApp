@@ -13,25 +13,27 @@ import {
   ScrollView,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
-import {AuthContext} from '../components/Context';
+import {AuthContext} from '../../components/Context';
+import { useNavigation } from '@react-navigation/native';
 import {
   GoogleSignin,
   GoogleSigninButton,
 } from '@react-native-community/google-signin';
 
-function LoginScreen({navigation}) {
+function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const {signin} = useContext(AuthContext);
+  const navigation = useNavigation();
 
-  function login(email, password, {navigation}) {
+  function login() {
     auth()
       .signInWithEmailAndPassword(email, password)
       .then(function (User) {
-        navigation.navigate('Home');
-        alert('Login Success!');
         signin();
         console.log(User.user.uid);
+        navigation.navigate('Home');
+        alert('Login Success!');
       })
       .catch(function (error) {
         alert(error.message);
@@ -70,7 +72,7 @@ function LoginScreen({navigation}) {
           <View style={styles.container}>
             <Image
               style={styles.logo}
-              source={require('../images/Q-LINE-icon.png')}
+              source={require('../../images/Q-LINE-icon.png')}
             />
             <Text style={styles.title}>ログイン</Text>
             <TextInput
@@ -96,7 +98,7 @@ function LoginScreen({navigation}) {
             />
             <TouchableHighlight
               style={styles.button}
-              onPress={()=>{login(email, password, {navigation})}}
+              onPress={()=>{login()}}
               underlayColor="#c70f66">
               <Text style={styles.buttonTitle}>ログインする</Text>
             </TouchableHighlight>
