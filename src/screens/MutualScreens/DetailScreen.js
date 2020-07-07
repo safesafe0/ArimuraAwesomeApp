@@ -1,8 +1,9 @@
-import React,{ useCallback ,useReducer } from 'react';
+import React,{ useCallback ,useReducer,useState,useContext } from 'react';
 import {
   StyleSheet,
   View,
   Text,
+  TextInput,
   TouchableOpacity,
   FlatList,
   ActivityIndicator
@@ -11,10 +12,15 @@ import { useNavigation } from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
 import { useFocusEffect } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {UidContext} from '../../components/Context';
 import Reply from '../../elements/Reply';
 import Detail from '../../elements/Detail';
 
 function DetailScreen({route}){
+  const {uid}=useContext(UidContext);
+  const [body, setBody] = useState(null);
+  const [image1, setImage1] = useState(null);
+  const [source1, setSource1] = useState(null);
   const navigation = useNavigation();
   const {item}=route.params;
   const [state, dispatch] = useReducer(
@@ -72,27 +78,35 @@ function DetailScreen({route}){
     return <ActivityIndicator />
   }
   return (
-    <View style={{flex:1,paddingBottom:60}}>
+    <View style={{flex:1,paddingBottom:60,backgroundColor:'#fff'}}>
       <FlatList
       data={state.postList}
       keyExtractor={(item) => item.id}
       renderItem={({item}) => <Reply {...item} />}
       ListHeaderComponent={<Detail {...item}/>}
       />
-      <TouchableOpacity
-      style={styles.tab}
-      onPress={()=>{navigation.navigate('Reply',{item:item})}}>
-        <View style={styles.tabLeft}></View>
-        <View style={styles.tabCenter}>
-          <Text style={styles.tabText}>回答する</Text>
-        </View>
-        <View style={styles.tabRight}>
+      <View style={styles.tab}>
+        <View></View>
+        <View style={styles.tabLeft}>
           <MaterialCommunityIcons
-            name={'pencil-plus-outline'}
-            color={'#fff'}
+            name={'camera'}
+            color={'#27fd'}
             size={37}/>
         </View>
-      </TouchableOpacity>
+        <TextInput
+        style={styles.tabCenter}
+        multiline
+        placeholder='返信する'
+        value={body}
+        onChangeText={setBody}
+        />
+        <TouchableOpacity style={styles.tabRight}>
+          <MaterialCommunityIcons
+            name={'send'}
+            color={'#27fd'}
+            size={37}/>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -104,31 +118,39 @@ const styles = StyleSheet.create({
   },
   tab:{
     width:'100%',
-    height:60,
+    maxHeight:90,
     position:'absolute',
     bottom:0,
-    alignSelf:'center',
     flexDirection: 'row',
-    backgroundColor:'#3d3',
+    borderTopWidth:2,
+    borderTopColor:'#ddd',
+    backgroundColor:'#fff',
   },
   tabLeft:{
-    width:'20%',
+    width:'15%',
     justifyContent:'center',
     alignItems:'center',
+    borderRightWidth:1,
+    borderRightColor:'#0007',
   },
   tabCenter:{
-    width:'60%',
+    width:'70%',
     justifyContent:'center',
-    alignItems:'center',
+    alignItems:'flex-start',
+    borderLeftWidth:1,
+    borderLeftColor:'#0007',
+    borderRightWidth:1,
+    borderRightColor:'#0007',
+    paddingLeft:10,
   },
   tabRight:{
-    width:'20%',
+    width:'15%',
     justifyContent:'center',
     alignItems:'center',
   },
   tabText:{
-    color:'#fff',
-    fontSize:23,
+    // color:'#fff',
+    // fontSize:23,
   },
 });
 export default DetailScreen;

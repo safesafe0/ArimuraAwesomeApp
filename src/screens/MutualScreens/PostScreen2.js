@@ -1,13 +1,15 @@
-import React, { useState,useContext } from 'react';
+import React, { useState,useContext,useReducer } from 'react';
 import {
   Text,
   Image,
   StyleSheet,
   View,
   TextInput,
+  FlatList,
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
   TouchableHighlight,
+  TouchableOpacity,
   Platform,
   Keyboard,
   ScrollView,
@@ -29,11 +31,11 @@ function PostScreen({navigation}) {
   const [hashtag, setHashtag] = useState(null);
   const [type, setType] = useState(null);
   const [bookName, setBookName] = useState(null);
-  const [image1, setImage1] = useState(null);
-  const [source1, setSource1] = useState(null);
-  const [image2, setImage2] = useState(null);
-  const [source2, setSource2] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [img1, setImg1] = useState([]);
+  const [img2, setImg2] = useState([]);
+  const [img1count, setImg1count] = useState(0);
+  const [img2count, setImg2count] = useState(0);
   function updateSubject(state) {setSubject(state)}
   function updateField(state) {setField(state)}
   function showPicker1() {
@@ -50,9 +52,21 @@ function PostScreen({navigation}) {
       } else if (response.error) {
         console.log('ImagePicker Error: ', response.error);
       } else {
-        console.log(response.path);
-        setImage1(response.path);
-        setSource1(response.uri);
+        console.log(response.path)
+        let tempList=img1;
+        const id=String(Math.random()*100000000000000000);
+        tempList.push({
+          id:id,
+          display:response.uri,
+          data:response.path,
+          width:response.width,
+          height:response.height,
+        })
+        setImg1(tempList)
+        console.log(img1count)
+        setImg1count(img1count+1)
+        console.log(img1count)
+        console.log(img1)
       }
     });
   }
@@ -70,82 +84,92 @@ function PostScreen({navigation}) {
       } else if (response.error) {
         console.log('ImagePicker Error: ', response.error);
       } else {
-        console.log(response.path);
-        setImage2(response.path);
-        setSource2(response.uri);
+        console.log(response.path)
+        let tempList=img2;
+        const id=String(Math.random()*100000000000000000);
+        tempList.push({
+          id:id,
+          display:response.uri,
+          data:response.path,
+          width:response.width,
+          height:response.height,
+        })
+        setImg2(tempList)
+        setImg2count(img2count+1)
       }
     });
   }
-  async function uploadImage1() {
+  function deleteItem1(id){
+    console.log('a')
+    const newArray = img1.filter((item) => item.id !== id);
+    setImg1(newArray);
+    setImg1count(img1count-1);
+    console.log(img1count)
+    console.log(img1)
+  }
+  function deleteItem2(id){
+    const newArray = img2.filter((item) => item.id !== id);
+    setImg2(newArray);
+    setImg2count(img2count-1)
+  }
+  async function upload(){
     setLoading(true);
-    if(image1){
-      const id=Math.random()*100000000000000000;
-      const iid=Math.random()*100000000000000000;
-      const uuid=''+id+''+iid;
-      const fileName=uuid+'.'+image1.split('.').pop();
-      console.log(fileName);
+    if(img1||img2){
+      let array =img1.concat(img2);
+      let tempList=[];
+      await Promise.all(array.map(async item => await uploadimg(item,tempList)));
+      uploadPost(tempList)
+    } else{
+      uploadPost(null);
+    }
+  }
+  async function uploadimg(item,tempList){
+    const id=Math.random()*100000000000000000;
+    const iid=Math.random()*100000000000000000;
+    const uuid=''+id+''+iid;
+    const fileName=uuid+'.'+item.data.split('.').pop();
+    await storage()
+    .ref('post')
+    .child('img')
+    .child(fileName)
+    .putFile(item.data)
+    .catch(()=>{
+      setLoading(false);
+      alert('画像の保存に失敗しました');
+    })
+    .then(async()=>{
       await storage()
       .ref('post')
       .child('img')
       .child(fileName)
-      .putFile(image1)
+      .getDownloadURL()
       .catch(()=>{
         setLoading(false);
-        alert('画像の保存に失敗しました');
+        alert('画像のURLの取得に失敗しました');
       })
-      .then(async()=>{
+      .then(async(downloadURL)=>{
         await storage()
         .ref('post')
         .child('img')
         .child(fileName)
-        .getDownloadURL()
+        .getMetadata()
         .catch(()=>{
           setLoading(false);
-          alert('画像のURLの取得に失敗しました');
+          alert('画像のメタデータの取得に失敗しました');
         })
-        .then((downloadURL)=>{
-          uploadImage2(downloadURL);
-        });
-      });
-    } else {
-      uploadImage2(null);
-    }
-  }
-  async function uploadImage2(image1URL) {
-    if(image2){
-      const id=Math.random()*100000000000000000;
-      const iid=Math.random()*100000000000000000;
-      const uuid=''+id+''+iid;
-      const fileName=uuid+'.'+image2.split('.').pop();
-      console.log(fileName);
-      await storage()
-      .ref('post')
-      .child('img')
-      .child(fileName)
-      .putFile(image2)
-      .catch(()=>{
-        setLoading(false);
-        alert('画像の保存に失敗しました');
-      })
-      .then(async()=>{
-        await storage()
-        .ref('post')
-        .child('img')
-        .child(fileName)
-        .getDownloadURL()
-        .catch(()=>{
-          setLoading(false);
-          alert('画像のURLの取得に失敗しました');
+        .then((metadata)=>{
+          tempList.push({
+            id:item.id,
+            uri:downloadURL,
+            size:metadata.size,
+            width:item.width,
+            height:item.height,
+          })
         })
-        .then((downloadURL)=>{
-          uploadPost(image1URL,downloadURL);
-        });
       });
-    } else {
-      uploadPost(image1URL,null);
-    }
+    })
   }
-  async function uploadPost(image1,image2) {
+  async function uploadPost(image) {
     await firestore()
       .collection('public')
       .doc('v1')
@@ -160,8 +184,7 @@ function PostScreen({navigation}) {
         hashtag:hashtag,
         type:type,
         bookName:bookName,
-        image1:image1,
-        image2:image2,
+        image:image,
         createdAt: new Date(),
       })
       .then(function (docRef) {
@@ -182,7 +205,7 @@ function PostScreen({navigation}) {
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : null}
       style={{flex: 1}}>
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.container}>
             <Text style={styles.notion}>残りの無料質問回数は3回です。</Text>
@@ -217,40 +240,68 @@ function PostScreen({navigation}) {
                 onChangeText={setBookName}
               />
             </View>
-            <Text style={styles.body}>わからない問題の画像</Text>
-            <TouchableHighlight
-              style={styles.button}
-              onPress={() => showPicker1()}
-              underlayColor="transparent">
-              {source1 ? (
-                <Image style={styles.image} source={{uri: source1}} />
-              ) : (
-                <View style={styles.wrapper}>
-                  <MaterialCommunityIcons
-                    style={styles.icon}
-                    name="image-filter"
-                  />
-                </View>
+            <View style={styles.imgcomponent}>
+              <Text style={styles.body}>わからない問題の画像</Text>
+              {img1.length>=4?null:(
+              <TouchableOpacity
+              style={styles.addImg}
+              onPress={() => showPicker1()}>
+                <Text>画像を追加する</Text>
+              </TouchableOpacity>
               )}
-            </TouchableHighlight>
-            <Text style={styles.body}>
-              わからない部分の解答画像(答えがある場合)
-            </Text>
-            <TouchableHighlight
-              style={styles.button}
-              onPress={() => showPicker2()}
-              underlayColor="transparent">
-              {source2 ? (
-                <Image style={styles.image} source={{uri: source2}} />
-              ) : (
-                <View style={styles.wrapper}>
+            </View>
+            {img1==[]?null:(
+            <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={img1}
+            extraData={img1count}
+            keyExtractor={(item) => item.id}
+            renderItem={({item}) => (
+              <View style={styles.imageList}>
+                <TouchableOpacity
+                style={styles.cover}
+                onPress={()=>deleteItem1(item.id)}>
                   <MaterialCommunityIcons
-                    style={styles.icon}
-                    name="image-filter"
+                  name={'close-circle'}
+                  style={styles.delete}
                   />
-                </View>
+                </TouchableOpacity>
+                <Image style={styles.image} source={{uri:item.display}}/>
+              </View>
+            )}/>
+            )}
+            <View style={styles.imgcomponent}>
+              <Text style={styles.body}>わからない部分の解答画像(答えがある場合)</Text>
+              {img2.length>=4?null:(
+              <TouchableOpacity
+              style={styles.addImg}
+              onPress={() => showPicker2()}>
+                <Text>画像を追加する</Text>
+              </TouchableOpacity>
               )}
-            </TouchableHighlight>
+            </View>
+            {img2==[]?null:(
+            <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={img2}
+            extraData={img2count}
+            keyExtractor={(item) => item.id}
+            renderItem={({item}) => (
+              <View style={styles.imageList}>
+                <TouchableOpacity
+                style={styles.cover}
+                onPress={()=>deleteItem2(item.id)}>
+                  <MaterialCommunityIcons
+                  name={'close-circle'}
+                  style={styles.delete}
+                  />
+                </TouchableOpacity>
+                <Image style={styles.image} source={{uri:item.display}}/>
+              </View>
+            )}/>
+            )}
             <Text style={styles.body}>どこがわからないのか</Text>
             <TextInput
               style={styles.postInput}
@@ -259,7 +310,7 @@ function PostScreen({navigation}) {
               onChangeText={setBody}
             />
             <CircleButton
-              onPress={() => {uploadImage1()}}>
+              onPress={() => {upload()}}>
               send
             </CircleButton>
           </View>
@@ -309,10 +360,39 @@ const styles = StyleSheet.create({
     padding: 8,
     marginLeft: 30,
   },
-  button: {
-    width: 85,
-    height: 85,
-    marginBottom: 20,
+  imgcomponent:{
+    // flexDirection: 'row',
+    // alignItems:'baseline'
+    marginBottom:10,
+  },
+  addImg:{
+    // marginLeft:30,
+    marginHorizontal:30,
+    paddingTop:5,
+    paddingBottom:7,
+    // paddingLeft:12,
+    // paddingRight:12,
+    alignItems:'center',
+    justifyContent:'center',
+    backgroundColor:'#ddd',
+  },
+  imageList:{
+    width:120,
+  },
+  cover:{
+    backgroundColor:'#fff',
+    borderRadius:50,
+    alignSelf:'flex-start',
+    top:20,
+    zIndex:1,
+  },
+  delete:{
+    fontSize:40,
+    color:'#000',
+  },
+  image: {
+    width: 100,
+    height: 100,
     alignSelf: 'center',
   },
   wrapper: {
@@ -329,16 +409,6 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     // androidの場合
     elevation: 5,
-  },
-  icon: {
-    fontSize: 45,
-    color: '#fff',
-    alignSelf: 'center',
-  },
-  image: {
-    width: 100,
-    height: 100,
-    alignSelf: 'center',
   },
   postInput: {
     backgroundColor: '#fff',

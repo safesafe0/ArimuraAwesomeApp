@@ -1,4 +1,4 @@
-import React, { useCallback , useReducer } from 'react';
+import React, { useCallback , useReducer ,useContext ,useState } from 'react';
 import {FlatList, StyleSheet, View, ActivityIndicator} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
@@ -7,6 +7,9 @@ import Post from '../../elements/Post';
 import CircleButton from '../../elements/CircleButton';
 
 function TimeLineScreen({navigation}) {
+  const {uid,tors}=useContext(UidContext);
+  const [isModalVisible,setisModalVisible]=useState(false);
+  const [focusImg,setFocusImg]=useState(null);
   const [thisState, dispatch] = useReducer(
     (prevState,action) => {
       return {
@@ -56,7 +59,7 @@ function TimeLineScreen({navigation}) {
       id: doc.id,
     })
   }
-  function toggleButton(uid) {
+  function toggleButton() {
     {
       uid === ''
         ? (navigation.navigate('Signin'), alert('Please Login!'))
@@ -67,23 +70,16 @@ function TimeLineScreen({navigation}) {
     return <ActivityIndicator />
   }
   return (
-    <UidContext.Consumer>
-      {(state) => (
-        <View style={styles.container}>
-          <FlatList
-            data={thisState.postList}
-            keyExtractor={(item) => item.id}
-            renderItem={({item}) => <Post {...item} />}
-          />
-          <CircleButton
-            onPress={() => {
-              toggleButton(state.uid);
-            }}>
-            plus
-          </CircleButton>
-        </View>
-      )}
-    </UidContext.Consumer>
+    <View style={styles.container}>
+      <FlatList
+        data={thisState.postList}
+        keyExtractor={(item) => item.id}
+        renderItem={({item}) => <Post {...item} />}
+      />
+      {tors=='s'?(
+        <CircleButton onPress={() => {toggleButton()}}>plus</CircleButton>
+      ):null}
+    </View>
   );
 }
 

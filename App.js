@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import React, {useReducer, useMemo, useEffect} from 'react';
+import React, {useReducer, useMemo} from 'react';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import {NavigationContainer} from '@react-navigation/native';
@@ -15,7 +15,7 @@ import SignupScreen from './src/screens/SignupScreen';
 import SigninScreen from './src/screens/MutualScreens/SigninScreen';
 import TimeLineScreen from './src/screens/MutualScreens/TimeLineScreen';
 import NotificationScreen from './src/screens/MutualScreens/NotificationScreen';
-import PostScreen from './src/screens/MutualScreens/PostScreen';
+import PostScreen from './src/screens/MutualScreens/PostScreen2';
 import DetailScreen from './src/screens/MutualScreens/DetailScreen';
 import ReplyScreen from './src/screens/MutualScreens/ReplyScreen';
 import TSignupScreen from './src/screens/TeacherScreens/TSignupScreen';
@@ -28,6 +28,7 @@ import TSettingScreen from './src/screens/TeacherScreens/TSettingScreen';
 import SSettingScreen from './src/screens/StudentScreens/SSettingScreen';
 
 const App: () => React$Node = () => {
+  const HeadetBackgroundColor='#27f';
   const Tab = createMaterialBottomTabNavigator();
   const HomeStack = createStackNavigator();
   const TimeLineStack = createStackNavigator();
@@ -51,21 +52,25 @@ const App: () => React$Node = () => {
             university: action.university,
             major: action.major,
             course: action.course,
-            isSignout:false,
           };
-        case 'UPDATE_TOKEN':
-          return {
-            ...prevState
-          }
         case 'SIGN_IN':
           return {
             ...prevState,
-            isSignout: false,
           };
         case 'SIGN_OUT':
           return {
             ...prevState,
-            isSignout: true,
+            uid: null,
+            nickname: null,
+            img: null,
+            header: null,
+            bio: null,
+            grade: null,
+            tors: 's',
+            firstSchool: null,
+            university: null,
+            major: null,
+            course: null,
           };
       }
     },
@@ -81,13 +86,12 @@ const App: () => React$Node = () => {
       university: null,
       major: null,
       course: null,
-      isSignout: true,
     },
   );
   function getUser() {
     const user = auth().currentUser;
-    console.log(user.uid)
     if (user) {
+      console.log(user.uid)
       firestore().collection('public').doc('v1').collection('users').doc(user.uid).onSnapshot((doc)=>{
         let nickname=doc.get('nickname')
         let img=doc.get('img')
@@ -139,7 +143,7 @@ const App: () => React$Node = () => {
         }
       })
     } else {
-      dispatch({
+      ()=>dispatch({
         type: 'RESTORE_TOKEN',
         uid: null,
         nickname: null,
@@ -153,19 +157,23 @@ const App: () => React$Node = () => {
         major: null,
         course: null,
       })
-      console.log('user is not logined!');
+      console.log('user is not logined!')
     }
   };
   useBeforeFirstRender(()=>getUser());
   const authContext = useMemo(() => ({
-    signin: () => dispatch({type: 'SIGN_IN'}),
+    signin: () => getUser(),
     signout: () => dispatch({type: 'SIGN_OUT'}),
-    update: ()=> dispatch({type: 'UPDATE_TOKEN'}),
     }),[],
   );
   function HomeStackScreen() {
     return (
-      <HomeStack.Navigator>
+      <HomeStack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: HeadetBackgroundColor},
+        headerTintColor: '#fff',
+      }}
+      >
         {state.tors==='s'?(
           <HomeStack.Screen name="Home" component={SHomeScreen} />
         ):(
@@ -176,21 +184,33 @@ const App: () => React$Node = () => {
   }
   function TimeLineStackScreen() {
     return (
-      <TimeLineStack.Navigator>
+      <TimeLineStack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: HeadetBackgroundColor},
+        headerTintColor: '#fff',
+      }}>
         <TimeLineStack.Screen name="TimeLine" component={TimeLineScreen} />
       </TimeLineStack.Navigator>
     );
   }
   function NotificationStackScreen() {
     return (
-      <NotificationStack.Navigator>
+      <NotificationStack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: HeadetBackgroundColor},
+        headerTintColor: '#fff',
+      }}>
         <NotificationStack.Screen name="Notification" component={NotificationScreen} />
       </NotificationStack.Navigator>
     );
   }
   function SigninStackScreen() {
     return (
-      <SigninStack.Navigator>
+      <SigninStack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: HeadetBackgroundColor},
+        headerTintColor: '#fff',
+      }}>
         {state.uid === null ? (
           <>
             <SigninStack.Screen name="Signin" component={SigninScreen} />
@@ -200,13 +220,9 @@ const App: () => React$Node = () => {
         ) : (
           <>
           {state.tors==='s'?(
-          <>
             <SigninStack.Screen name="Mypage" component={SMypageScreen}/>
-          </>
           ):(
-            <>
-              <SigninStack.Screen name="Mypage" component={TMypageScreen}/>
-            </>
+            <SigninStack.Screen name="Mypage" component={TMypageScreen}/>
           )}
           </>
         )}
@@ -245,7 +261,12 @@ const App: () => React$Node = () => {
     <AuthContext.Provider value={authContext}>
       <UidContext.Provider value={state}>
         <NavigationContainer>
-          <RootStack.Navigator mode="modal">
+          <RootStack.Navigator
+          mode="modal"
+          screenOptions={{
+            headerStyle: { backgroundColor: HeadetBackgroundColor},
+            headerTintColor: '#fff',
+          }}>
             <RootStack.Screen
               name="Main"
               component={MainTabs}

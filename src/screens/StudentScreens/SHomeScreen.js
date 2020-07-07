@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
   space:{
     width:'100%',
     height:50,
-    backgroundColor:'#3cf',
+    backgroundColor:'#9f6',
   },
   section:{
     marginTop:10,

@@ -14,7 +14,7 @@ function CircleButton(props) {
     underlayColor='transparent'
     >
       <View style={[styles.circleButton,props.style]}>
-        <MaterialCommunityIcons 
+        <MaterialCommunityIcons
         style={styles.icon}
         name={props.children}/>
       </View>

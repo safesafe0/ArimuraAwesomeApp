@@ -94,7 +94,7 @@ function SMypageScreen({navigation}) {
               <Text style={styles.body}>{state.grade}</Text>
               <Text style={styles.body}>{state.firstSchool}志望</Text>
               <Text style={styles.bio}>{state.bio}</Text>
-              <Button title="signOut" onPress={signOut} />
+              <Button title="signOut" onPress={()=>signOut()} />
               <Text style={styles.p}>いままでの質問一覧</Text>
             </View>
           }
@@ -137,6 +137,7 @@ const styles = StyleSheet.create({
   bio:{
     top:-30,
     fontSize: 15,
+    maxWidth:'70%',
     // marginBottom: 4,
   },
   p:{

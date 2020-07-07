@@ -40,8 +40,8 @@ function SSettingScreen() {
     useCallback(()=>{
       setLoading(true)
       setNickname(nickname)
-      setImg({uri:img})
-      setHeader({uri:header})
+      setImg(img)
+      setHeader(header)
       setBio(bio)
       setGrade(grade)
       setFirstSchool(firstSchool)
